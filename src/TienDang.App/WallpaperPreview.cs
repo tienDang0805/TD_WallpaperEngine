@@ -17,6 +17,11 @@ public sealed class WallpaperPreview : UserControl, IDisposable
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private MpvVideoSurface? _surface;
     private MpvPlayer? _player;
+    private readonly SemaphoreSlim _selectionLock = new(1, 1);
+    private readonly BitmapDecodeWorker _bitmaps = new();
+    private Task _releaseTask = Task.CompletedTask;
+    private int _mediaGeneration;
+    private long _mediaVersion;
     private WallpaperItem? _item;
     private int _generation, _seekVersion;
     private bool _loaded, _paused = true, _pollBusy, _dragging, _disposed;
@@ -82,72 +87,104 @@ public sealed class WallpaperPreview : UserControl, IDisposable
         StateChanged?.Invoke(_item == null ? L.Text("Chọn một wallpaper") :
             _item.IsVideo ? (_paused ? L.Text("Video · Tạm dừng") : L.Text("Video · Đang phát")) : L.Text("Ảnh · Xem toàn bộ"));
     }
-    internal async Task ShowItemAsync(WallpaperItem? item, bool remote = false)
+    internal async Task ShowItemAsync(WallpaperItem? item, bool remote = false, BitmapSource? poster = null)
     {
         if (_disposed) return;
         var generation = ++_generation;
-        ReleasePlayer();
+        _timer.Stop(); _loaded = false; HasVideoFrame = false; _play.IsEnabled = _seek.IsEnabled = false;
         MediaWidth = MediaHeight = 0; _duration = 0;
-        _item = item; _selectedPath = item?.Path; _image.Source = null; _image.Visibility = Visibility.Collapsed;
-        _empty.Visibility = Visibility.Visible; _controls.Visibility = Visibility.Collapsed;
+        _item = item; _selectedPath = item?.Path;
+        if (poster != null) _image.Source = poster;
+        _image.Visibility = _image.Source == null ? Visibility.Collapsed : Visibility.Visible;
+        if (_surface != null && _image.Source != null) _surface.Visibility = Visibility.Hidden;
+        _empty.Visibility = _image.Source == null && _surface == null ? Visibility.Visible : Visibility.Collapsed;
+        _controls.Visibility = Visibility.Collapsed;
         _empty.Text = L.Text("Chọn một wallpaper trong thư viện\nđể xem ảnh hoặc phát video.");
         _stage.Background = new SolidColorBrush(item == null ? Color.FromRgb(231, 238, 250) : Color.FromRgb(16, 42, 77));
         _empty.Foreground = item == null ? new SolidColorBrush(Color.FromRgb(22, 52, 95)) : Brushes.White;
-        if (item == null) { StateChanged?.Invoke(L.Text("Chọn một wallpaper")); return; }
-        if (!remote && !item.Exists) { Fail(L.Text("Không tìm thấy file."), generation); return; }
+        await _selectionLock.WaitAsync();
         try
         {
+            if (generation != _generation || _disposed) return;
+            await _releaseTask;
+            if (generation != _generation || _disposed) return;
+            if (item == null)
+            {
+                ReleasePlayer(); await _releaseTask; _image.Source = null;
+                _image.Visibility = Visibility.Collapsed; _empty.Visibility = Visibility.Visible;
+                StateChanged?.Invoke(L.Text("Chọn một wallpaper")); return;
+            }
+            if (!remote && !item.Exists) { Fail(L.Text("Không tìm thấy file."), generation); return; }
             if (!item.IsVideo)
             {
+                ReleasePlayer(); await _releaseTask;
                 StateChanged?.Invoke(L.Text("Ảnh · Đang mở…"));
-                var bitmap = await Task.Run(() => ThumbnailService.LoadImage(item.Path, 0));
+                var sourceWidth = 0; var sourceHeight = 0;
+                var bitmap = await _bitmaps.RunAsync(() =>
+                {
+                    using var input = File.OpenRead(item.Path);
+                    var source = BitmapDecoder.Create(input, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None).Frames[0];
+                    sourceWidth = source.PixelWidth; sourceHeight = source.PixelHeight;
+                    return WallpaperPresenter.LoadBitmap(item.Path, 2_073_600);
+                }, CancellationToken.None);
                 if (generation != _generation || _disposed) return;
-                MediaWidth = bitmap.PixelWidth; MediaHeight = bitmap.PixelHeight; MetadataChanged?.Invoke();
+                MediaWidth = sourceWidth; MediaHeight = sourceHeight; MetadataChanged?.Invoke();
                 _image.Source = bitmap; _image.Visibility = Visibility.Visible; _empty.Visibility = Visibility.Collapsed;
                 StateChanged?.Invoke(L.Text("Ảnh · Xem toàn bộ")); return;
             }
             _controls.Visibility = CompactControls ? Visibility.Collapsed : Visibility.Visible;
             _empty.Visibility = Visibility.Collapsed;
             _time.Text = "00:00 / 00:00"; _seek.Value = 0; _duration = 0;
-            _surface = new MpvVideoSurface();
-            _stage.Children.Add(_surface); _surface.UpdateLayout();
-            var player = new MpvPlayer(_surface.Handle); _player = player;
+            var reused = _player != null;
+            if (_surface == null)
+            {
+                _surface = new MpvVideoSurface();
+                _stage.Children.Add(_surface); _surface.UpdateLayout();
+                if (_image.Source != null) _surface.Visibility = Visibility.Hidden;
+            }
+            var player = _player ?? new MpvPlayer(_surface.Handle); _player = player;
+            if (!reused) BindPlayer(player);
+            _mediaGeneration = generation; _mediaVersion = player.MediaVersion + 1;
             _paused = true; _play.Content = "▶";
             StateChanged?.Invoke(L.Text("Video · Đang mở…"));
-            player.Loaded += () => Dispatch(async () =>
-            {
-                if (generation != _generation) return;
-                _loaded = true; _play.IsEnabled = true; _seek.IsEnabled = true;
-                StateChanged?.Invoke(L.Text("Video · Tạm dừng"));
-                _timer.Start(); await PollAsync();
-                var parameters = await player.GetPropertyAsync("video-params");
-                if (generation != _generation) return;
-                if (parameters.TryGetProperty("dw", out var width)) MediaWidth = width.GetInt32();
-                if (parameters.TryGetProperty("dh", out var height)) MediaHeight = height.GetInt32();
-                MetadataChanged?.Invoke();
-            });
-            player.FrameReady += () => Dispatch(() =>
-            {
-                if (generation == _generation) HasVideoFrame = true;
-                return Task.CompletedTask;
-            });
-            player.Ended += () => Dispatch(async () =>
-            {
-                if (generation != _generation) return;
-                await SafeAsync(() => player.RestartAsync());
-                if (!_paused) await SafeAsync(() => player.SetPausedAsync(false));
-            });
-            player.Failed += error => Dispatch(() => { Fail(error, generation); return Task.CompletedTask; });
-            if (remote) await player.StartUrlAsync(new Uri(item.Path), _mute.IsChecked == true, (int)_volume.Value, "Fit", true);
+            if (reused) await player.ReloadAsync(item.Path, _mute.IsChecked == true, (int)_volume.Value, "Fit", true, remote: remote);
+            else if (remote) await player.StartUrlAsync(new Uri(item.Path), _mute.IsChecked == true, (int)_volume.Value, "Fit", true);
             else await player.StartAsync(item.Path, _mute.IsChecked == true, (int)_volume.Value, "Fit", true);
-            _ = CheckLoadAsync(generation);
+            if (generation != _generation || _disposed || player != _player) return;
+            // Start/Reload completes only after the first decoded frame.
+            _surface.Visibility = Visibility.Visible; _image.Visibility = Visibility.Collapsed; _image.Source = null;
+            _loaded = HasVideoFrame = true; _play.IsEnabled = _seek.IsEnabled = true;
+            StateChanged?.Invoke(L.Text("Video · Tạm dừng")); _timer.Start(); await PollAsync();
+            var parameters = await player.GetPropertyAsync("video-params");
+            if (generation != _generation) return;
+            if (parameters.TryGetProperty("dw", out var width)) MediaWidth = width.GetInt32();
+            if (parameters.TryGetProperty("dh", out var height)) MediaHeight = height.GetInt32();
+            MetadataChanged?.Invoke();
         }
         catch (Exception ex) { Fail(ex.Message, generation); }
+        finally { _selectionLock.Release(); }
     }
-    private async Task CheckLoadAsync(int generation)
+    private void BindPlayer(MpvPlayer player)
     {
-        await Task.Delay(TimeSpan.FromSeconds(25));
-        if (!_disposed && generation == _generation && !_loaded) Fail(L.Text("Video mở quá lâu. Thử chọn lại hoặc kiểm tra file."), generation);
+        player.MediaEnded += media =>
+        {
+            var generation = _mediaGeneration;
+            Dispatch(async () =>
+            {
+                if (player != _player || generation != _generation || media != _mediaVersion || !_loaded) return;
+                await player.RestartAsync();
+                if (generation == _generation && !_paused) await player.SetPausedAsync(false);
+            });
+        };
+        player.MediaFailed += (media, error) =>
+        {
+            var generation = _mediaGeneration;
+            Dispatch(() =>
+            {
+                if (player == _player && media == _mediaVersion) Fail(error, generation);
+                return Task.CompletedTask;
+            });
+        };
     }
     internal async Task ToggleAsync()
     {
@@ -235,8 +272,14 @@ public sealed class WallpaperPreview : UserControl, IDisposable
     private void ReleasePlayer()
     {
         _timer.Stop(); _loaded = false; HasVideoFrame = false; _play.IsEnabled = false; _seek.IsEnabled = false;
-        _player?.Dispose(); _player = null;
-        if (_surface != null) { _stage.Children.Remove(_surface); _surface.Dispose(); _surface = null; }
+        var player = _player; var surface = _surface; _player = null; _surface = null;
+        if (surface != null) surface.Visibility = Visibility.Hidden;
+        if (player != null || surface != null) _releaseTask = RetireAsync(player, surface);
+    }
+    private async Task RetireAsync(MpvPlayer? player, MpvVideoSurface? surface)
+    {
+        try { if (player != null) await player.DisposeAsync(); }
+        finally { if (surface != null) { _stage.Children.Remove(surface); surface.Dispose(); } }
     }
     // HwndHost is drawn by a native GPU window. For a WPF render, use the
     // player's actual decoded frame while preserving its playback state.
@@ -266,6 +309,6 @@ public sealed class WallpaperPreview : UserControl, IDisposable
     public void Dispose()
     {
         if (_disposed) return;
-        Suspend(); _disposed = true;
+        Suspend(); _disposed = true; _bitmaps.Dispose();
     }
 }

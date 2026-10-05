@@ -1,4 +1,4 @@
-param([switch]$Portable, [string]$OutputDirectory = "artifacts/release-1.0.1", [string]$StarterPackDirectory)
+param([switch]$Portable, [string]$OutputDirectory = "artifacts/release-1.0.2", [string]$StarterPackDirectory)
 $ErrorActionPreference = "Stop"
 Push-Location $PSScriptRoot
 try {

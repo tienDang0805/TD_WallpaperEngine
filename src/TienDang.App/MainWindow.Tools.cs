@@ -48,7 +48,7 @@ public partial class MainWindow
             catch (Exception error) { output = "Unavailable: " + error.GetType().Name; }
             versions.Add(Path.GetFileName(path) + ": " + output);
         }
-        await File.WriteAllTextAsync(target, "TD-WallpaperEngine 1.0.1\n" + DateTime.UtcNow.ToString("O") + "\n" + string.Join("\n", versions) + "\n" + text);
+        await File.WriteAllTextAsync(target, "TD-WallpaperEngine 1.0.2\n" + DateTime.UtcNow.ToString("O") + "\n" + string.Join("\n", versions) + "\n" + text);
     }
     internal async Task AddStarterAsync()
     {

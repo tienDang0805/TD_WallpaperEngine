@@ -53,6 +53,7 @@ internal static class Program
         if (args.Contains("--activity")) return ActivityChecks.Run(app, root);
         if (args.Contains("--phase4")) return PhaseFourUiChecks.Run(app, root);
         if (args.Contains("--controller")) return ControllerChecks.Run(app);
+        if (args.Contains("--renderer-reuse")) return RendererReuseChecks.Run(app, Path.GetFullPath(args[Array.IndexOf(args, "--renderer-reuse") + 1]));
         if (args.Contains("--diagnostics")) return DiagnosticsChecks.Run(root);
         if (args.Contains("--stage2")) return StageTwoChecks.Run(root, args);
         var directory = Path.Combine(Path.GetTempPath(), "TienDang-ui-" + Guid.NewGuid().ToString("N"));
@@ -90,6 +91,11 @@ internal static class Program
         await Until(() => preview.IsVideoReady, "real video inline preview loads");
         Require(preview.IsPaused, "preview starts paused");
         var playerId = preview.PreviewProcessId; Require(playerId > 0, "preview owns a video process");
+        var alternate = new WallpaperItem { Id = "reuse-video", Name = "Second video selection", Path = video.Path, IsVideo = true };
+        await preview.ShowItemAsync(alternate);
+        Require(preview.IsVideoReady && preview.HasVideoFrame && preview.PreviewProcessId == playerId, "video selection reuses renderer and waits for decoded frame");
+        await preview.ShowItemAsync(video);
+        Require(preview.PreviewProcessId == playerId && preview.SelectedId == video.Id, "reused preview returns to selected video");
         await preview.ToggleAsync(); Require(!preview.IsPaused, "play");
         await Task.Delay(700); await preview.ToggleAsync(); Require(preview.IsPaused, "pause");
         await preview.SeekAsync(3);

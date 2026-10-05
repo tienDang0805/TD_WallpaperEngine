@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.2 — 2026-10-06
+
+- Fix the remaining physical desktop transition flash reported in 1.0.1. Retain one owned MPV renderer/native video window for video-to-video changes; replace the old file and decoder through `loadfile replace`.
+- Keep a bounded outgoing frame in a layered DWM child until the new decoded frame is ready. A failed replacement retains the frame; image switches and shutdown release the renderer.
+- Reuse the preview renderer, show the selected thumbnail while loading, and reveal the video only after its first frame. Serialize rapid selections, ignore stale media events and retire preview surfaces asynchronously after process exit.
+- Bound image preview decoding to 2,073,600 pixels while preserving original dimension metadata.
+- Add start-file/file-loaded/frame readiness barriers, per-media event versions and reset per-media diagnostic timings. Preserve hardware decode and FPS options.
+- Add mixed-codec replacement/file-handle-release checks, renderer reuse checks and updated 48-cycle memory/handle regression. Detailed validation and remaining physical/soak coverage: docs/RELEASE-1.0.2.md.
+
+The earlier kill-process-on-every-switch policy is superseded by the owner's explicit approval to keep the renderer and release the old decoder. The public 1.0.1 tag and artifacts remain unchanged.
+
 ## 1.0.1 — 2026-10-05
 
 - Correct the pinned FFmpeg asset URL so a fresh source checkout can prepare tools; SHA256 pins remain unchanged.

@@ -5,13 +5,21 @@ using System.Text.Json;
 
 namespace TienDang.App;
 
-/// <summary>One isolated process per load prevents stale events reaching the next video.</summary>
+/// <summary>One owned renderer; loadfile replaces and releases the previous decoder.</summary>
 internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
 {
     private readonly string _pipeName = "TienDang-mpv-" + Guid.NewGuid().ToString("N");
     private readonly NamedPipeClientStream _pipe;
     private readonly ConcurrentDictionary<int, TaskCompletionSource<JsonElement>> _pending = new();
     private readonly SemaphoreSlim _writeLock = new(1, 1);
+    private readonly SemaphoreSlim _mediaLock = new(1, 1);
+    private TaskCompletionSource? _mediaReady;
+    private long _mediaVersion, _entryId = -1;
+    private volatile bool _awaitingStart, _mediaLoaded;
+    internal long MediaVersion => Interlocked.Read(ref _mediaVersion);
+    internal event Action<long>? MediaFrameReady;
+    internal event Action<long>? MediaEnded;
+    internal event Action<long, string>? MediaFailed;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly object _errorLock = new();
     private readonly bool _headless;
@@ -58,7 +66,7 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
         {
             "--no-config", "--load-scripts=no", "--input-default-bindings=no", "--input-vo-keyboard=no",
             "--input-cursor=no", "--osc=no", "--osd-level=0", "--terminal=yes", "--msg-level=all=warn",
-            "--idle=yes", "--keep-open=yes", "--keep-open-pause=no", "--loop-file=no", "--stop-screensaver=no",
+            "--idle=yes", "--force-window=immediate", "--keep-open=yes", "--keep-open-pause=no", "--loop-file=no", "--stop-screensaver=no",
             "--audio-display=no", "--drag-and-drop=no", "--focus-on=never", "--taskbar-progress=no", "--input-ipc-server=" + _pipeName,
             "--mute=" + (muted ? "yes" : "no"), "--volume=" + Math.Clamp(volume, 0, 100),
             "--pause=" + (paused ? "yes" : "no"),
@@ -96,10 +104,45 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
             _ = ReadEvents();
             await CommandAsync("request_log_messages", "warn");
             await CommandAsync("observe_property", 1, "eof-reached");
-            await CommandAsync("loadfile", path, "replace");
+            await LoadMediaAsync(path);
         }
         catch (Exception ex) when (!_disposed)
         { throw new InvalidOperationException(L.Text("Không mở được bộ phát video: ") + ex.Message + " " + Diagnostic(), ex); }
+    }
+    internal async Task ReloadAsync(string path, bool muted, int volume, string fit, bool paused, int frameRateLimit = 0, bool remote = false)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (remote)
+        {
+            var url = new Uri(path);
+            if (url.Scheme is not ("http" or "https") || !string.IsNullOrEmpty(url.UserInfo)) throw new ArgumentException("HTTP/HTTPS URL required.");
+            path = url.AbsoluteUri;
+        }
+        else
+        {
+            path = Path.GetFullPath(path);
+            if (!File.Exists(path)) throw new FileNotFoundException(L.Text("File video không còn tồn tại."), path);
+        }
+        await SetPausedAsync(paused);
+        await SetOptionsAsync(muted, volume, fit, frameRateLimit);
+        await LoadMediaAsync(path);
+    }
+    private async Task LoadMediaAsync(string path)
+    {
+        await _mediaLock.WaitAsync(_lifetime.Token);
+        try
+        {
+            _mediaLoaded = false; _awaitingStart = true; _entryId = -1;
+            Interlocked.Increment(ref _mediaVersion);
+            lock (_errorLock) { _failureReported = false; InfrastructureFailure = false; _diagnostic = ""; }
+            _startupClock.Restart(); Interlocked.Exchange(ref _fileLoadedTicks, -1); Interlocked.Exchange(ref _firstFrameTicks, -1);
+            var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); _mediaReady = ready;
+            // The command acknowledgement is not a decoded frame. Wait for this
+            // file's start-file -> file-loaded -> playback-restart sequence.
+            await CommandAsync("loadfile", path, "replace");
+            await ready.Task.WaitAsync(TimeSpan.FromSeconds(25), _lifetime.Token);
+        }
+        finally { _mediaLock.Release(); }
     }
     public Task SetPausedAsync(bool paused) => CommandAsync("set_property", "pause", paused);
     public async Task SetOptionsAsync(bool muted, int volume, string fit, int frameRateLimit = 0)
@@ -168,13 +211,25 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
                 switch (eventName.GetString())
                 {
                     case "log-message": AddDiagnostic(root.GetProperty("text").GetString()); break;
-                    case "file-loaded": Interlocked.CompareExchange(ref _fileLoadedTicks, _startupClock.ElapsedTicks, -1); Loaded?.Invoke(); break;
-                    case "playback-restart": Interlocked.CompareExchange(ref _firstFrameTicks, _startupClock.ElapsedTicks, -1); FrameReady?.Invoke(); break;
+                    case "start-file":
+                        _awaitingStart = false;
+                        _entryId = root.TryGetProperty("playlist_entry_id", out var entry) ? entry.GetInt64() : -1;
+                        break;
+                    case "file-loaded":
+                        if (_awaitingStart) break;
+                        _mediaLoaded = true;
+                        Interlocked.CompareExchange(ref _fileLoadedTicks, _startupClock.ElapsedTicks, -1); Loaded?.Invoke(); break;
+                    case "playback-restart":
+                        if (!_mediaLoaded || _awaitingStart) break;
+                        Interlocked.CompareExchange(ref _firstFrameTicks, _startupClock.ElapsedTicks, -1);
+                        _mediaReady?.TrySetResult(); MediaFrameReady?.Invoke(MediaVersion); FrameReady?.Invoke(); break;
                     case "property-change":
                         if (root.TryGetProperty("name", out var name) && name.GetString() == "eof-reached" &&
-                            root.TryGetProperty("data", out var value) && value.ValueKind == JsonValueKind.True) Ended?.Invoke();
+                            root.TryGetProperty("data", out var value) && value.ValueKind == JsonValueKind.True && _mediaLoaded && !_awaitingStart)
+                        { MediaEnded?.Invoke(MediaVersion); Ended?.Invoke(); }
                         break;
                     case "end-file":
+                        if (_awaitingStart || (root.TryGetProperty("playlist_entry_id", out var endedEntry) && endedEntry.GetInt64() != _entryId)) break;
                         if (root.TryGetProperty("reason", out var reason) && reason.GetString() == "error")
                             Fail(L.Text("Không giải mã được video: ") + (root.TryGetProperty("file_error", out var fileError) ? fileError.GetString() : L.Text("lỗi bộ phát")) + ". " + Diagnostic());
                         break;
@@ -204,6 +259,8 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
             _failureReported = true; InfrastructureFailure = infrastructure;
         }
         foreach (var item in _pending.Values) item.TrySetException(new IOException(message));
+        _mediaReady?.TrySetException(new IOException(message));
+        MediaFailed?.Invoke(MediaVersion, message);
         Failed?.Invoke(message);
     }
     public void Dispose() => BeginDispose(false);
@@ -211,6 +268,7 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
     {
         if (_disposed) return;
         _disposed = true; _lifetime.Cancel();
+        _mediaReady?.TrySetCanceled();
         foreach (var item in _pending.Values) item.TrySetCanceled();
         _pending.Clear();
         if (!graceful)

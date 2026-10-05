@@ -51,13 +51,13 @@ internal static class CleanupStressChecks
                     bridges++; maxBridgePixels = Math.Max(maxBridgePixels, presenter.BridgePixelCount);
                     if (presenter.BridgePixelCount > 2_073_600) throw new InvalidOperationException("Static frame exceeds pixel budget");
                 }
-                if (oldPid > 0 && presenter.PendingProcessId > 0 && Alive(oldPid)) throw new InvalidOperationException("Old/new decoder overlap");
+                if (oldPid > 0 && presenter.PendingProcessId > 0 && presenter.PendingProcessId != oldPid && Alive(oldPid)) throw new InvalidOperationException("Overlapping renderer processes");
                 await Task.Delay(25);
             }
             await load;
             if (presenter.VideoSlotCount > 2) throw new InvalidOperationException("Unbounded video surface pool");
             if (presenter.ActiveGeneration != i || presenter.ActiveProcessId == 0) throw new InvalidOperationException("Load did not commit");
-            if (oldPid > 0 && Alive(oldPid)) throw new InvalidOperationException("Old decoder alive after replacement");
+            if (oldPid > 0 && presenter.ActiveProcessId != oldPid) throw new InvalidOperationException("Video replacement unnecessarily restarted renderer");
             var marker = Path.Combine(root, "artifacts", "stage3-cleanup-active.json");
             File.WriteAllText(marker + ".tmp", JsonSerializer.Serialize(new { Pid = presenter.ActiveProcessId, Fixture = "cleanup-cycle-" + i, Limit = 0 }));
             File.Move(marker + ".tmp", marker, true);
@@ -75,15 +75,18 @@ internal static class CleanupStressChecks
         }
         var active = presenter.ActiveProcessId; pids.Add(active); presenter.Dispose(); await Task.Delay(300);
         Require(pids.All(pid => !Alive(pid)), "every observed owned decoder exits");
-        Require(presenter.CleanupEvidence.Count == Math.Min(cycles - 1, 64) && presenter.CleanupEvidence.All(e => e.OldExitTicks < e.NewStartTicks), "retained handoffs record exit before next start");
+        Require(presenter.RendererReuseCount == cycles - 1 && pids.Count == 1, "all video replacements use one owned renderer");
         Require(bridges > 0 && maxBridgePixels <= 2_073_600, "4K source produces bounded static bridge");
         var initial = samples.Where(s => s.Cycle >= 9 && s.Cycle <= 16).ToArray(); var final = samples.Where(s => s.Cycle >= cycles - 7).ToArray();
         double Median(IEnumerable<double> values) { var sorted = values.Order().ToArray(); return (sorted[(sorted.Length - 1) / 2] + sorted[sorted.Length / 2]) / 2; }
         var ramGrowth = Median(final.Select(s => s.AppPrivateMiB)) - Median(initial.Select(s => s.AppPrivateMiB));
         var handleGrowth = Median(final.Select(s => (double)s.AppHandles)) - Median(initial.Select(s => (double)s.AppHandles));
+        var decoderGrowth = Median(final.Select(s => s.DecoderPrivateMiB)) - Median(initial.Select(s => s.DecoderPrivateMiB));
+        var decoderHandles = Median(final.Select(s => (double)s.DecoderHandles)) - Median(initial.Select(s => (double)s.DecoderHandles));
         File.WriteAllText(reportPath ?? Path.Combine(root, "artifacts", "stage3-cleanup-stress.json"), JsonSerializer.Serialize(new { Samples = samples, HandleTypes = handleTypes, Diagnostics = diagnostics, Bridges = bridges, MaxBridgePixels = maxBridgePixels, AppRamMedianGrowthMiB = ramGrowth, AppHandleMedianGrowth = handleGrowth, Fixture = video, Cycles = cycles, DwellMs = dwellMs, Scope = dwellMs < 600_000 ? "Accelerated short regression in ordinary 720x450 window; not 8/24h soak" : "Timed native presenter soak in ordinary 720x450 window; does not cover real boot/sleep/dual physical displays", Evidence = presenter.CleanupEvidence.Select(e => new { e.Generation, e.OldPid, e.OldExitTicks, e.NewPid, e.NewStartTicks }) }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine($"Stress warm-to-end RAM median delta={ramGrowth:F2}MiB handles={handleGrowth:F0}");
         Require(handleGrowth <= 20 && ramGrowth <= 128, "short-run handle/RAM growth stays within regression ceiling");
+        Require(decoderHandles <= 20 && decoderGrowth <= 128, "reused renderer does not accumulate decoder memory/handles in the short regression");
         Console.WriteLine("PASS cleanup stress suite");
     }
     private static bool Alive(int pid) { try { using var p = Process.GetProcessById(pid); return !p.HasExited; } catch (ArgumentException) { return false; } }

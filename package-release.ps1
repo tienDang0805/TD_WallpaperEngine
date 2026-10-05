@@ -1,4 +1,4 @@
-param([string]$Version='1.0.1', [string]$Compiler, [switch]$Force)
+param([string]$Version='1.0.2', [string]$Compiler, [switch]$Force)
 $ErrorActionPreference='Stop'
 $taskRoot=$PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid version.'}
@@ -15,7 +15,7 @@ $taskDocuments=@('README.md','HUONG-DAN.txt','CHANGELOG.md','LICENSE','ASSET-LIC
 foreach($document in $taskDocuments){Copy-Item -LiteralPath (Join-Path $taskRoot $document) -Destination $taskRelease -Force}
 $taskDocsTarget=Join-Path $taskRelease 'docs'
 New-Item -ItemType Directory -Force $taskDocsTarget | Out-Null
-foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.1.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
+foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.2.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
 $taskImagesTarget=Join-Path $taskDocsTarget 'images'
 New-Item -ItemType Directory -Force $taskImagesTarget | Out-Null
 foreach($image in @('library.png','settings.png')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/images/'+$image)) -Destination $taskImagesTarget -Force }

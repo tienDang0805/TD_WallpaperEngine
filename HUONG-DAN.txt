@@ -1,4 +1,4 @@
-TD-WallpaperEngine 1.0.1 — Windows x64, bộ cài và portable
+TD-WallpaperEngine 1.0.2 — Windows x64, bộ cài và portable
 
 1. Chạy Setup.exe, hoặc giải nén toàn bộ Portable.zip vào một thư mục cố định.
 2. Thoát phiên app cũ từ menu khay hệ thống rồi mở TienDang.Wallpaper.exe.
@@ -44,7 +44,7 @@ DỮ LIỆU / NÂNG CẤP
   dùng Tìm lại trong thư mục, không cần tạo lại bộ hoặc yêu thích.
 - Đóng cửa sổ thu xuống tray; Thoát kết thúc app và các process do app sở hữu.
 - Bật khởi động Windows sau khi đặt release vào vị trí cố định.
-- README.md, CHANGELOG.md, docs/DEVELOPMENT.md và docs/RELEASE-1.0.1.md
+- README.md, CHANGELOG.md, docs/DEVELOPMENT.md và docs/RELEASE-1.0.2.md
   có ngữ cảnh kỹ thuật, test đã chạy và giới hạn chưa kiểm chứng.
 
 GIỚI HẠN QA

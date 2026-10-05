@@ -8,11 +8,16 @@ A standalone Windows app for animated wallpapers, image collections and automati
 
 ## Demo
 
-The screenshots show the current native Windows interface. A full desktop demonstration showing app operation and wallpaper changes is being recorded; the earlier window-only recording is not included.
+Recorded on the owner's Windows desktop: using **Set as wallpaper** while the app stays open, followed by the actual desktop wallpaper change. The clip keeps the transition intact; it is not a window-only capture.
+
+![Desktop wallpaper change](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.gif)
+
+[Watch the 1080p desktop recording](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.mp4).
 
 ## Main features
 
 - Preview images and videos, including MP4 and WebM.
+- Reuse the video renderer for smoother changes; hold the outgoing frame/preview thumbnail until the new video is ready.
 - Import files/folders, or drag and drop into the library.
 - Download direct media URLs and YouTube videos with progress, cancellation and automatic import.
 - Collections, favorites, schedules and per-monitor rotation.
@@ -29,8 +34,8 @@ Head to the [Releases page](https://github.com/tienDang0805/TD_WallpaperEngine/r
 
 | File | Use |
 | --- | --- |
-| TD-WallpaperEngine-1.0.1-Setup.exe | Per-user installer, shortcuts and uninstaller. |
-| TD-WallpaperEngine-1.0.1-Portable.zip | Extract and run TienDang.Wallpaper.exe; keep accompanying files/folders. |
+| TD-WallpaperEngine-1.0.2-Setup.exe | Per-user installer, shortcuts and uninstaller. |
+| TD-WallpaperEngine-1.0.2-Portable.zip | Extract and run TienDang.Wallpaper.exe; keep accompanying files/folders. |
 | Source code (zip) / Source code (tar.gz) | GitHub source snapshots for the release tag. |
 | SHA256SUMS.txt | Checksums for the uploaded release files. |
 
@@ -56,14 +61,14 @@ Files imported without copying depend on their original locations. Enable copyin
 
 ## Changelog
 
-[Complete history](CHANGELOG.md) · [1.0.1 release notes](docs/RELEASE-1.0.1.md).
+[Complete history](CHANGELOG.md) · [1.0.2 release notes](docs/RELEASE-1.0.2.md).
 
 ## Build from source
 
 Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) are required:
 
 ```powershell
-./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.1
+./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.2
 ```
 
 Preparation scripts download pinned external tools and verify SHA256; the build runs core tests.
@@ -74,7 +79,7 @@ Source builds can import your own media. To bundle the release samples, provide 
 
 ```powershell
 ./build.ps1 -Portable -StarterPackDirectory "D:/StarterPack"
-./package-release.ps1 -Version 1.0.1 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
+./package-release.ps1 -Version 1.0.2 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
 ```
 
 Packaging requires [Inno Setup 6](https://jrsoftware.org/isdl.php), the complete starter pack and matching source version. See [developer/release context](docs/DEVELOPMENT.md).

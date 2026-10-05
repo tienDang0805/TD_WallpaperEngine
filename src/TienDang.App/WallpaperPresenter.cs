@@ -4,8 +4,8 @@ using System.Windows.Threading;
 
 namespace TienDang.App;
 
-// Each candidate has a separate native child window. This also keeps a loading
-// video below a WPF image: HwndHost airspace cannot cover the active layer.
+// A layered held frame or committed image covers the shared video window
+// while its owned renderer replaces media and prepares a decoded frame.
 internal sealed class WallpaperPresenter(Window owner) : IDisposable
 {
     private static Window NewLayerWindow() => new()
@@ -24,6 +24,7 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
         internal readonly CancellationTokenSource Lifetime = new();
         internal readonly TaskCompletionSource Ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal MpvPlayer? Video;
+        internal long MediaVersion;
         internal Image? Image;
         internal bool Disposed, Bridge;
         internal Task Exit = Task.CompletedTask;
@@ -61,6 +62,8 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
         }
     }
     private Layer? _active, _pending;
+    private Layer? _videoLayer;
+    internal int RendererReuseCount { get; private set; }
     private readonly HashSet<Layer> _retiring = [];
 
     private NativeFrameLayer? _bridgeSlot;
@@ -127,37 +130,24 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
             if (!IsCurrent(candidate, version)) return;
             if (message.IsVideo)
             {
-                // Reuse one native HWND only after the old decoder has exited.
+                // Keep the GPU renderer and native HWND; loadfile releases the old decoder.
                 if (_videoHandle == 0) _videoHandle = NativeVideoLayer.Create(parent);
                 candidate.NativeHandle = _videoHandle;
                 NativeDesktop.PositionLayer(candidate.Handle, parent, _active?.Handle ?? 0);
                 if (candidate.Handle == 0) throw new InvalidOperationException(L.Text("Không tạo được lớp video."));
-                var player = new MpvPlayer(candidate.Handle); candidate.Video = player;
-                player.FrameReady += () => candidate.Ready.TrySetResult();
-                player.Failed += error =>
-                {
-                    candidate.Ready.TrySetException(new IOException(error));
-                    Dispatch(candidate, async () =>
-                    {
-                        if (_active != candidate || candidate.Disposed) return;
-                        if (player.InfrastructureFailure) Crashed?.Invoke(message.Generation, error);
-                        else Failed?.Invoke(message.Generation, error);
-                        await Task.CompletedTask;
-                    });
-                };
-                player.Ended += () => Dispatch(candidate, async () =>
-                {
-                    if (_active != candidate || candidate.Disposed || _disposed) return;
-                    Ended?.Invoke(message.Generation);
-                    // A static captured frame covers the parent while the next item loads.
-                    // If rotation is disabled the same video continues looping.
-                    await player.RestartAsync();
-                    if (_active == candidate) await player.SetPausedAsync(_paused);
-                });
+                var reused = candidate.Video != null;
+                var player = candidate.Video ?? new MpvPlayer(candidate.Handle); candidate.Video = player;
+                if (!reused) BindPlayer(player);
+                candidate.MediaVersion = player.MediaVersion + 1; _videoLayer = candidate;
                 // Decode a first frame silently without advancing the new wallpaper.
                 var newStart = _timeline.ElapsedTicks;
-                await player.StartAsync(message.Path, true, message.Volume, message.Fit, true, message.FrameRateLimit).WaitAsync(candidate.Lifetime.Token);
-                if (oldPid != 0) RecordCleanup(message.Generation, oldPid, oldExit, player.ProcessId, newStart);
+                if (reused)
+                {
+                    await player.ReloadAsync(message.Path, true, message.Volume, message.Fit, true, message.FrameRateLimit).WaitAsync(candidate.Lifetime.Token);
+                    RendererReuseCount++;
+                }
+                else await player.StartAsync(message.Path, true, message.Volume, message.Fit, true, message.FrameRateLimit).WaitAsync(candidate.Lifetime.Token);
+                if (oldPid != 0 && !reused) RecordCleanup(message.Generation, oldPid, oldExit, player.ProcessId, newStart);
                 await candidate.Ready.Task.WaitAsync(TimeSpan.FromSeconds(25), candidate.Lifetime.Token);
             }
             else
@@ -225,6 +215,39 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
             finally { if (locked) _transition.Release(); }
         }
     }
+    private void BindPlayer(MpvPlayer player)
+    {
+        // Subscribe once per process. Never retain one closure for every wallpaper.
+        Layer? Current(long media) => _videoLayer is { Disposed: false } layer && layer.Video == player && layer.MediaVersion == media ? layer : null;
+        player.MediaFrameReady += media => Current(media)?.Ready.TrySetResult();
+        player.MediaFailed += (media, error) =>
+        {
+            var layer = Current(media); if (layer == null) return;
+            layer.Ready.TrySetException(new IOException(error));
+            Dispatch(layer, () =>
+            {
+                if (_active == layer && !layer.Disposed)
+                {
+                    if (player.InfrastructureFailure) Crashed?.Invoke(layer.Message.Generation, error);
+                    else Failed?.Invoke(layer.Message.Generation, error);
+                }
+                return Task.CompletedTask;
+            });
+        };
+        player.MediaEnded += media =>
+        {
+            var layer = Current(media); if (layer == null) return;
+            Dispatch(layer, async () =>
+            {
+                if (_active != layer || layer.Disposed || _disposed) return;
+                Ended?.Invoke(layer.Message.Generation);
+                // Rotation may synchronously begin the next load. Do not seek it.
+                if (_pending != null || _active != layer || player.MediaVersion != media) return;
+                await player.RestartAsync();
+                if (_active == layer && _pending == null) await player.SetPausedAsync(_paused);
+            });
+        };
+    }
     private void RecordCleanup(int generation, int oldPid, long oldExit, int newPid, long newStart)
     {
         CleanupEvidence.Add((generation, oldPid, oldExit, newPid, newStart));
@@ -261,7 +284,12 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
             NativeDesktop.PositionLayer(bridge.Handle, parent, 0); bridge.StaticSlot!.Present();
             if (bridge.StaticSlot.PaintCount == 0) throw new IOException("The held frame has not been painted.");
             _active = bridge; NativeDesktop.DwmFlush();
-            // The static window remains above the outgoing native video through exit.
+            if (candidate.Message.IsVideo)
+            {
+                candidate.Video = oldPlayer;
+                outgoing.Video = null; outgoing.NativeHandle = 0;
+            }
+            // Keep the held frame above the renderer throughout media replacement/exit.
             await outgoing.RetireAsync();
             if (IsCurrent(candidate, version) && candidate.Handle != 0) NativeDesktop.PositionLayer(candidate.Handle, parent, bridge.Handle);
             return oldPid;
@@ -269,7 +297,7 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
         catch
         {
             if (bridge != null && _active != bridge) bridge.Dispose();
-            // No new decoder may start if snapshot or old-process exit failed.
+            // No media replacement may start if the held frame could not be presented.
             throw;
         }
         finally { try { File.Delete(path); } catch (IOException) { } }

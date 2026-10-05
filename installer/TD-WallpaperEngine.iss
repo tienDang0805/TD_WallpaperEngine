@@ -1,8 +1,8 @@
 #ifndef Version
-  #define Version "1.0.1"
+  #define Version "1.0.2"
 #endif
 #ifndef ReleaseDir
-  #define ReleaseDir "..\artifacts\release-1.0.1"
+  #define ReleaseDir "..\artifacts\release-1.0.2"
 #endif
 #ifndef OutputDir
   #define OutputDir "..\artifacts"
@@ -56,7 +56,8 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := '';
   if (FindWindowByWindowName('TD-WallpaperEngine · 1.0.0') <> 0) or
-     (FindWindowByWindowName('TD-WallpaperEngine · 1.0.1') <> 0) then
+     (FindWindowByWindowName('TD-WallpaperEngine · 1.0.1') <> 0) or
+     (FindWindowByWindowName('TD-WallpaperEngine · 1.0.2') <> 0) then
     Result := 'Exit TD-WallpaperEngine from its system tray menu before installing. Your library will be preserved.';
 end;
 

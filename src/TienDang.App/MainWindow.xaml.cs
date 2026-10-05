@@ -213,7 +213,7 @@ public partial class MainWindow : Window
         PreviewName.Text = item?.Name ?? L.Text("Chọn một wallpaper để xem trước");
         PreviewMeta.Text = item == null ? L.Text("Xem trước chưa thay đổi hình nền.") : !item.Exists ? L.Text("Không tìm thấy file · Tìm lại để giữ mục trong bộ") : L.Text($"{(item.IsVideo ? "Video" : L.Text("Ảnh"))} · {System.IO.Path.GetExtension(item.Path).TrimStart('.').ToUpperInvariant()} · Chưa áp dụng");
         if (InlinePreview.SelectedId != item?.Id || InlinePreview.SelectedPath != item?.Path || (item?.IsVideo == true && InlinePreview.PreviewProcessId == 0))
-            await InlinePreview.ShowItemAsync(item);
+            await InlinePreview.ShowItemAsync(item, poster: (WallpaperList.SelectedItem as WallpaperCard)?.Thumbnail);
         UpdatePreviewMetadata();
     }
     private void UpdatePlayback()

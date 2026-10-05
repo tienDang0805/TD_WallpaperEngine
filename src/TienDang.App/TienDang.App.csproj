@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>disable</ImplicitUsings>
-    <AssemblyName>TienDang.Wallpaper</AssemblyName><ApplicationIcon>Assets/app.ico</ApplicationIcon><NoWarn>$(NoWarn);WFO0003</NoWarn><ApplicationManifest>app.manifest</ApplicationManifest><Version>1.0.1</Version><Product>TD-WallpaperEngine</Product><AssemblyTitle>TD-WallpaperEngine</AssemblyTitle><Description>Windows wallpaper library and video rotation</Description>
+    <AssemblyName>TienDang.Wallpaper</AssemblyName><ApplicationIcon>Assets/app.ico</ApplicationIcon><NoWarn>$(NoWarn);WFO0003</NoWarn><ApplicationManifest>app.manifest</ApplicationManifest><Version>1.0.2</Version><Product>TD-WallpaperEngine</Product><AssemblyTitle>TD-WallpaperEngine</AssemblyTitle><Description>Windows wallpaper library and video rotation</Description>
   </PropertyGroup>
   <ItemGroup><EmbeddedResource Include="Localization\*.json" /></ItemGroup><ItemGroup><InternalsVisibleTo Include="TienDang.UiTests" /><InternalsVisibleTo Include="TienDang.VideoTests" /></ItemGroup>
   <ItemGroup><Resource Include="Assets/mascot-library.png" /><Resource Include="Assets/mascot-desk.png" /><Resource Include="Assets/mascot-empty.png" /><Resource Include="Assets/app.ico" /><Resource Include="Assets/brand.png" /></ItemGroup>

@@ -57,7 +57,12 @@ internal static class TransitionChecks
             Require(loaded == message.Generation && presenter.ActiveGeneration == message.Generation, name + " commits ready replacement");
             Require(NativeDesktop.IsWindow(presenter.ActiveHandle) && NativeDesktop.GetWindow(parent, 5) == presenter.ActiveHandle, name + " replacement covers parent");
             if (old != 0) Require(samples > 0 && (old == presenter.ActiveHandle || !NativeDesktop.IsWindow(old) || !NativeDesktop.IsWindowVisible(old)), name + " old layer is replaced through a covered handoff");
-            if (oldProcess != 0) { await Task.Delay(100); Require(!Alive(oldProcess), name + " old decoder cleaned up"); }
+            if (oldProcess != 0)
+            {
+                await Task.Delay(100);
+                if (message.IsVideo) Require(presenter.ActiveProcessId == oldProcess && Alive(oldProcess), name + " reuses renderer after replacing media");
+                else Require(!Alive(oldProcess), name + " video renderer exits when switching to image");
+            }
         }
         await LoadGuarded(Item(1, image), "initial image");
         await LoadGuarded(Item(2, image), "image to image");
@@ -116,7 +121,8 @@ internal static class TransitionChecks
         var finalPending = presenter.PendingProcessId; var pendingWindow = presenter.PendingHandle;
         presenter.Dispose(); await unfinished; await Task.Delay(150);
         Require(!NativeDesktop.IsWindow(activeWindow) && !NativeDesktop.IsWindow(pendingWindow) && !Alive(finalActive) && !Alive(finalPending), "dispose closes active/pending layers and players");
-        Require(presenter.CleanupEvidence.Count > 0 && presenter.CleanupEvidence.TrueForAll(e => e.OldExitTicks < e.NewStartTicks && !Alive(e.OldPid)), "all recorded replacements confirm old exit before new decoder start");
+        Require(presenter.RendererReuseCount > 0, "video replacements reuse the owned renderer");
+        Require(presenter.CleanupEvidence.TrueForAll(e => e.OldExitTicks < e.NewStartTicks && !Alive(e.OldPid)), "non-reused replacements close their old processes");
         foreach (var sample in presenter.CleanupEvidence) Console.WriteLine($"Cleanup generation={sample.Generation} oldPID={sample.OldPid} exitTicks={sample.OldExitTicks} newPID={sample.NewPid} startTicks={sample.NewStartTicks}");
         Console.WriteLine("PASS wallpaper transition continuity suite");
     }

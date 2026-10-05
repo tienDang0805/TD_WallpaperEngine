@@ -16,10 +16,10 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Build, test and publish
         shell: pwsh
-        run: ./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.1
+        run: ./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.2
       - uses: actions/upload-artifact@v4
         with:
-          name: TD-WallpaperEngine-1.0.1-win-x64-build
-          path: artifacts/release-1.0.1
+          name: TD-WallpaperEngine-1.0.2-win-x64-build
+          path: artifacts/release-1.0.2
           if-no-files-found: error
           retention-days: 14

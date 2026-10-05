@@ -1,4 +1,4 @@
-param([string]$ReleaseDirectory="artifacts/release-1.0.1")
+param([string]$ReleaseDirectory="artifacts/release-1.0.2")
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $taskExe=Join-Path $taskRoot (Join-Path $ReleaseDirectory 'TienDang.Wallpaper.exe')
@@ -43,5 +43,5 @@ Run-Case 'startup' @('--startup','--minimized') $null 4
 Run-Case 'existing-empty' @() $taskEmpty 0
 Run-Case 'old-settings' @() $taskEmpty 0
 Run-Case 'backup-only' @() $taskEmpty 0 -BackupOnly
-[IO.File]::WriteAllText((Join-Path $taskRoot 'artifacts/v101-smoke.json'),($taskResults | ConvertTo-Json -Depth 7),[Text.UTF8Encoding]::new($false))
+[IO.File]::WriteAllText((Join-Path $taskRoot ('artifacts/portable-smoke-'+(Get-Item $taskExe).VersionInfo.ProductVersion+'.json')),($taskResults | ConvertTo-Json -Depth 7),[Text.UTF8Encoding]::new($false))
 Write-Output ('PASS Portable EXE 5/5; renders: '+$taskBase)
