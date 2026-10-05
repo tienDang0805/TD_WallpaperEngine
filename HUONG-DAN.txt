@@ -1,0 +1,53 @@
+TD-WallpaperEngine 1.0.1 — Windows x64, bộ cài và portable
+
+1. Chạy Setup.exe, hoặc giải nén toàn bộ Portable.zip vào một thư mục cố định.
+2. Thoát phiên app cũ từ menu khay hệ thống rồi mở TienDang.Wallpaper.exe.
+   Tên EXE được giữ để tương thích; tên app hiển thị là TD-WallpaperEngine.
+3. Thêm wallpaper từ máy, kéo thả ảnh/video/WebM/thư mục hoặc chọn Thêm từ URL.
+4. Chọn mục để xem trước, bấm Đặt làm nền hoặc bật Tự đổi nền.
+   Xáo trộn bắt đầu bằng mục đang chọn, rồi chạy các mục còn lại trước khi lặp.
+5. Cài đặt: Tiếng Việt/English, hình minh họa cách vừa màn hình,
+   Theo video gốc / 15 / 30 / 60 FPS, profile và quy tắc ứng dụng.
+6. Tiện ích thư viện ở sidebar: kiểm tra file, tìm lại theo folder,
+   xem dung lượng, dọn có khôi phục, sao lưu và cập nhật bộ tải.
+
+BỘ MẪU
+- Lần mở thư viện mới: Galaxy Eye Anime Girl, Water Fantasy · 水中的美女,
+  Forest Valley và Fortress City.
+- Media mẫu được chép vào thư viện; bản video tối đa 1080p/30 FPS, không tiếng.
+- Thư viện đang có, kể cả thư viện đã xóa hết mục, không bị tự thêm lại.
+- Muốn thêm lại: Tiện ích thư viện → Sao lưu → Thêm lại bộ wallpaper mẫu.
+- Nguồn và giấy phép nằm trong StarterPack/CREDITS.md.
+
+TẢI URL / YOUTUBE
+- Link ảnh/video trực tiếp hoặc link một video YouTube đã phát xong.
+- YouTube: Tốt nhất có thể / 1080p / 1440p / 4K. Đây là giới hạn chất lượng,
+  không bảo đảm nguồn luôn có đủ độ phân giải đó.
+- Tải một file mỗi lần, ghi stream xuống disk, tự kiểm tra và thêm khi hoàn tất.
+- Đóng cửa sổ hàng đợi vẫn tải; Thoát app hủy tác vụ.
+- Tải bị gián đoạn: mở Hàng đợi tải và bấm Thử lại. Tải lại từ đầu;
+  chưa hỗ trợ tiếp tục theo byte của phiên trước.
+- Nếu YouTube thay đổi: Tiện ích thư viện → Bộ tải và hỗ trợ → cập nhật bộ tải.
+  Có nút quay lại bộ trước. Không tự đọc cookie hay phiên đăng nhập trình duyệt.
+
+HIỆU NĂNG
+- Theo video gốc là mặc định; giảm FPS không luôn giảm CPU do chi phí xử lý frame.
+- Tiết kiệm có thể đóng bộ phát để nhả RAM khi tự tạm dừng; nền Windows sẽ
+  hiện trong thời gian đó. App nhớ wallpaper và thời gian luân phiên còn lại.
+- Quy tắc ứng dụng có hiệu lực với cửa sổ bạn đang dùng trên màn hình đó.
+- Chỉ --startup chờ 3 giây; mở thủ công không có delay chủ động.
+
+DỮ LIỆU / NÂNG CẤP
+- Dữ liệu: %LOCALAPPDATA%\TienDangWallpaper. Schema vẫn Version 1.
+- Chép file vào thư viện khi thêm giúp không phụ thuộc vị trí file gốc.
+- Nếu không chép: chuyển/xóa file gốc làm đường dẫn cũ mất hiệu lực;
+  dùng Tìm lại trong thư mục, không cần tạo lại bộ hoặc yêu thích.
+- Đóng cửa sổ thu xuống tray; Thoát kết thúc app và các process do app sở hữu.
+- Bật khởi động Windows sau khi đặt release vào vị trí cố định.
+- README.md, CHANGELOG.md, docs/DEVELOPMENT.md và docs/RELEASE-1.0.1.md
+  có ngữ cảnh kỹ thuật, test đã chạy và giới hạn chưa kiểm chứng.
+
+GIỚI HẠN QA
+Cold boot thật, game dưới tải, hai màn hình/DPI hỗn hợp, sleep/lock/Explorer/
+hotplug thật và soak 8/24 giờ còn trong checklist. Không coi test ngắn là soak.
+App không cần chạy bằng Administrator.

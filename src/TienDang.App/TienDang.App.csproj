@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>TienDang.Wallpaper</AssemblyName><ApplicationIcon>Assets/app.ico</ApplicationIcon><NoWarn>$(NoWarn);WFO0003</NoWarn><ApplicationManifest>app.manifest</ApplicationManifest><Version>1.0.1</Version><Product>TD-WallpaperEngine</Product><AssemblyTitle>TD-WallpaperEngine</AssemblyTitle><Description>Windows wallpaper library and video rotation</Description>
+  </PropertyGroup>
+  <ItemGroup><EmbeddedResource Include="Localization\*.json" /></ItemGroup><ItemGroup><InternalsVisibleTo Include="TienDang.UiTests" /><InternalsVisibleTo Include="TienDang.VideoTests" /></ItemGroup>
+  <ItemGroup><Resource Include="Assets/mascot-library.png" /><Resource Include="Assets/mascot-desk.png" /><Resource Include="Assets/mascot-empty.png" /><Resource Include="Assets/app.ico" /><Resource Include="Assets/brand.png" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../TienDang.Core/TienDang.Core.csproj" /></ItemGroup>
+  <ItemGroup><Content Include="Player\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><Content Include="DownloadTools\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><Content Include="StarterPack\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup><Target Name="EnsureBundledPlayer" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Player\mpv.exe')" Text="Run prepare-player.ps1 before building the app." />
+  </Target>
+</Project>

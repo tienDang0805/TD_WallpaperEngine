@@ -1,0 +1,30 @@
+mpv Windows x64 — bundled external video player, unmodified.
+Copyright (c) 2000–2026 mpv/MPlayer/mplayer2 contributors.
+Build: mpv v0.41.0-1092-g3186d369f, 2026-10-02.
+FFmpeg N-127087-g460cb0521; libplacebo v7.374.0.
+mpv source uses GPLv2-or-later by default; see Copyright.txt,
+LICENSE.GPL.txt and LICENSE.LGPL.txt for original notices.
+The upstream Windows build also includes FFmpeg and other dependencies.
+FFmpeg build is GPLv3-or-later; see FFmpeg-GPLv3.txt and FFmpeg-LICENSE.txt.
+Their respective copyright and license notices remain applicable.
+
+Upstream binary and build recipe:
+https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/20261002
+https://github.com/shinchiro/mpv-winbuild-cmake
+mpv source for this build:
+https://github.com/mpv-player/mpv/tree/3186d369f9
+FFmpeg source for this build:
+https://github.com/FFmpeg/FFmpeg/tree/460cb0521
+libplacebo source:
+https://code.videolan.org/videolan/libplacebo
+Dependency recipes and source retrieval instructions:
+https://github.com/shinchiro/mpv-winbuild-cmake/tree/master/packages
+
+Archive: mpv-x86_64-20261002-git-3186d369f9.7z
+SHA256: 60c30aac468937448298b8fd97c81c4825e1c81eb6f56a1ab5cbfd2a9bc13668
+mpv.exe SHA256:
+2924ff596afd0352985b734b132f17f66564cc001e44d9e2e2ca7f5b5c16309b
+
+The app starts mpv as a separate process and controls it through JSON IPC.
+No installer, updater, scripts, or registry modifications from mpv are run.
+No media file is uploaded or converted.
