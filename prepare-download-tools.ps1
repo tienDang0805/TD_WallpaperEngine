@@ -16,7 +16,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $toolDirectory 'deno.exe'))) {
 }
 if ((Get-FileHash -LiteralPath (Join-Path $toolDirectory 'deno.exe')).Hash -ne 'E020F3E232BD16E33768DEE528E5983349C962952051CED0A5D58AD42F5D9B33') { throw 'Unexpected deno.exe checksum.' }
 $ffmpegArchive = Join-Path $PSScriptRoot 'artifacts\player-downloads\ffmpeg.7z'
-Get-VerifiedFile 'https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20261002/ffmpeg-x86_64-20261002-git-460cb0521.7z' $ffmpegArchive 'CFA365650B8EF7BD3802F0C69E5904F227D8A7B58445253E89BBF1890E7F4887'
+Get-VerifiedFile 'https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20261002/ffmpeg-x86_64-git-460cb0521.7z' $ffmpegArchive 'CFA365650B8EF7BD3802F0C69E5904F227D8A7B58445253E89BBF1890E7F4887'
 if (-not (Test-Path -LiteralPath (Join-Path $toolDirectory 'ffmpeg.exe'))) {
     & tar -xf $ffmpegArchive -C $toolDirectory ffmpeg.exe
     if ($LASTEXITCODE -ne 0) { throw 'Cannot extract ffmpeg.exe.' }

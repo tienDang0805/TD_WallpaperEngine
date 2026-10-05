@@ -2,6 +2,8 @@
 
 ## 1.0.1 — 2026-10-05
 
+- Correct the pinned FFmpeg asset URL so a fresh source checkout can prepare tools; SHA256 pins remain unchanged.
+
 - Native GDI held-frame handoff: synchronous paint/DWM flush before outgoing decoder exit, bounded 2,073,600-pixel bridge, retained on replacement failure.
 - Per-display renderer ownership across app copies/custom libraries. Detect old 1.0.0 workers, recover abandoned ownership, report EN-VI conflicts without retry loops.
 - Supplied empty-box/laptop/wallpaper-card mascots; transparent library exterior and bounded 384-pixel UI decode.
