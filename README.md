@@ -1,95 +1,95 @@
 # TD-WallpaperEngine
 
-A standalone Windows app for animated wallpapers, image collections and automatic rotation. English and Vietnamese. No Steam or Wallpaper Engine installation required.
+Bring your Windows desktop to life with video wallpapers, or build a collection of images that changes throughout the day. TD-WallpaperEngine lets you preview, organize and apply your wallpapers from one place, with controls for playback, rotation and resource usage.
 
-[Download](https://github.com/tienDang0805/TD_WallpaperEngine/releases/latest) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/tienDang0805/TD_WallpaperEngine/issues)
+The app supports English and Vietnamese and runs independently of Steam and Wallpaper Engine.
 
-![Library and video preview](docs/images/library.png)
-
-## Demo
-
-Recorded on the owner's Windows desktop: using **Set as wallpaper** while the app stays open, followed by the actual desktop wallpaper change. The clip keeps the transition intact; it is not a window-only capture.
-
-![Desktop wallpaper change](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.gif)
-
-[Watch the 1080p desktop recording](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.mp4).
-
-## Main features
-
-- Preview images and videos, including MP4 and WebM.
-- Reuse the video renderer for smoother changes; hold the outgoing frame/preview thumbnail until the new video is ready.
-- Import files/folders, or drag and drop into the library.
-- Download direct media URLs and YouTube videos with progress, cancellation and automatic import.
-- Collections, favorites, schedules and per-monitor rotation.
-- Start shuffle with the selected wallpaper, then rotate without repeats within a round.
-- Pause for fullscreen/maximized apps, battery use and application rules. Optional memory-saving mode releases the player.
-- Original, 15, 30 or 60 FPS; hardware decoding when the GPU and codec support it.
-- Missing-file checks, folder relinking, media backup, cleanup with undo and playback diagnostics.
-
-![Playback settings](docs/images/settings.png)
+[Download](#download) · [Demo](#demo) · [Features](#main-features) · [Report an issue](https://github.com/tienDang0805/TD_WallpaperEngine/issues)
 
 ## Download
 
-Head to the [Releases page](https://github.com/tienDang0805/TD_WallpaperEngine/releases/latest) for the install wizard or portable ZIP.
+Get the latest version from the [Releases page](https://github.com/tienDang0805/TD_WallpaperEngine/releases/latest).
 
-| File | Use |
+| Download | Description |
 | --- | --- |
-| TD-WallpaperEngine-1.0.2-Setup.exe | Per-user installer, shortcuts and uninstaller. |
-| TD-WallpaperEngine-1.0.2-Portable.zip | Extract and run TienDang.Wallpaper.exe; keep accompanying files/folders. |
-| Source code (zip) / Source code (tar.gz) | GitHub source snapshots for the release tag. |
-| SHA256SUMS.txt | Checksums for the uploaded release files. |
+| [Windows installer](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-1.0.2-Setup.exe) | Installs the app for your Windows account and includes shortcuts and an uninstaller. |
+| [Portable ZIP](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-1.0.2-Portable.zip) | Extract the folder, then run `TienDang.Wallpaper.exe`. Keep the included files and folders together. |
+| Source code | Available as ZIP and tar.gz on each release page. See [Build from source](#build-from-source) for instructions. |
+| [SHA256 checksums](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/SHA256SUMS.txt) | Verify the downloaded release files. |
 
-The runnable application EXE is inside the portable ZIP and installed app folder. Its legacy filename preserves compatibility; the product name is TD-WallpaperEngine.
+A new library includes two video wallpapers and two fantasy images to try. Updating an existing installation keeps your library and settings.
 
-**Requirements:** Windows 10/11 x64, a Direct3D 11 GPU driver and space for the library. Downloads are self-contained: no separate .NET, mpv, yt-dlp, Deno or FFmpeg install is needed. Internet is needed for URL/YouTube downloads. Hardware decoding depends on the GPU and codec.
+## Requirements
 
-New libraries receive two supplied videos and two fantasy images. Existing and intentionally empty libraries are preserved.
+- Windows 10 or Windows 11, 64-bit.
+- A GPU and driver that support Direct3D 11. Hardware video decoding depends on the GPU and video format.
+- Enough disk space for the app and your wallpaper collection.
+- An internet connection to download wallpapers from URLs or YouTube.
+
+The installer and portable package include the required runtime and media tools. You do not need to install .NET, mpv, yt-dlp, Deno or FFmpeg separately.
+
+## Demo
+
+See the app in use on a Windows desktop, including a wallpaper change through **Set as wallpaper**.
+
+![Changing a wallpaper on the desktop](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.gif)
+
+[Watch the demo in 1080p](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-Demo.mp4).
+
+![Wallpaper library and video preview](docs/images/library.png)
+
+## Main features
+
+- **Image and video wallpapers.** Preview your collection before applying a wallpaper, with support for MP4 and WebM videos.
+- **Easy imports.** Add files or folders, drag and drop media into the app, or download from a direct media URL or YouTube link. Downloads show progress and can be cancelled.
+- **Collections and favorites.** Keep wallpapers organized and find the ones you use most.
+- **Automatic rotation.** Choose an interval, schedule and target monitor. Shuffle starts with your selected wallpaper and avoids repeats until the round is complete.
+- **Smoother video changes.** Keep the previous frame on screen while the next video loads. Preview shows a thumbnail until playback is ready.
+- **Playback controls.** Choose the display fit, volume and frame rate: original, 15, 30 or 60 FPS.
+- **Resource management.** Pause playback for fullscreen or maximized apps, while on battery, or through application rules. An optional memory-saving mode releases the player while paused.
+- **Library maintenance.** Locate missing files, reconnect moved folders, back up media and undo cleanup operations. Playback diagnostics help investigate problems.
+
+![Playback and performance settings](docs/images/settings.png)
 
 ## Quick start
 
-1. Add wallpaper from your computer, a folder or URL.
-2. Select it to preview.
-3. Choose **Set as wallpaper**, or **Start rotation** for the collection.
-4. Set interval, shuffle and target monitor.
-5. Closing the window keeps playback in the tray; **Exit** ends the app.
+1. Install the app, or extract the portable ZIP and run `TienDang.Wallpaper.exe`.
+2. Open the library and try a bundled wallpaper, or use **Add wallpaper** to import your own files or a URL.
+3. Select a wallpaper to preview it, then choose **Set as wallpaper**.
+4. To cycle through a collection, enable automatic rotation and choose the interval, shuffle order and target monitor.
+5. Adjust playback and performance settings to suit your desktop.
 
-Exit the old app from its tray menu before upgrading. Each display permits one desktop renderer; another instance can browse a separate library and preview.
+Closing the main window sends the app to the system tray and keeps the wallpaper running. Use **Exit** from the tray menu to stop the app completely. Exit the previous version before installing an update.
 
-Data stays in `%LOCALAPPDATA%/TienDangWallpaper`. Updates and uninstall preserve it. Launching the new app with the default library updates an already-enabled Windows startup entry. Startup launches wait 3 seconds; manual launches have no intentional delay.
-
-Files imported without copying depend on their original locations. Enable copying for owned media, or use relinking after moving originals.
+Your library and settings are stored in `%LOCALAPPDATA%\TienDangWallpaper` and are preserved during updates and uninstall. Files imported without copying still use their original locations; enable library copying if you want to move or delete the originals later.
 
 ## Changelog
 
-[Complete history](CHANGELOG.md) · [1.0.2 release notes](docs/RELEASE-1.0.2.md).
+See the [full changelog](CHANGELOG.md) for version history and the [1.0.2 release notes](docs/RELEASE-1.0.2.md) for details of the latest changes and testing.
 
 ## Build from source
 
-Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) are required:
+You will need Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```powershell
+git clone https://github.com/tienDang0805/TD_WallpaperEngine.git
+cd TD_WallpaperEngine
 ./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.2
 ```
 
-Preparation scripts download pinned external tools and verify SHA256; the build runs core tests.
+The build scripts download pinned media tools, verify their SHA256 checksums, run the core tests and publish the app. Source builds let you import your own wallpapers; bundled sample media is distributed with releases rather than stored in Git.
 
-Git contains source, tests, scripts, necessary UI artwork and docs. Outputs, tool executables, samples, recordings, personal libraries and cookies are excluded.
-
-Source builds can import your own media. To bundle the release samples, provide a four-file starter folder outside Git:
+To include the sample wallpapers and produce an installer, provide the four-file starter pack and install [Inno Setup 6](https://jrsoftware.org/isdl.php):
 
 ```powershell
 ./build.ps1 -Portable -StarterPackDirectory "D:/StarterPack"
 ./package-release.ps1 -Version 1.0.2 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
 ```
 
-Packaging requires [Inno Setup 6](https://jrsoftware.org/isdl.php), the complete starter pack and matching source version. See [developer/release context](docs/DEVELOPMENT.md).
+The repository contains application source, tests, build scripts, UI assets and documentation. Build outputs, external executables, wallpaper libraries and recordings are excluded. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for the project structure, testing and release process.
 
 ## License
 
-Application source and docs: [MIT](LICENSE). Artwork, sample media and external executables retain their own rights/licenses; see [asset licenses](ASSET-LICENSES.md) and [starter credits](src/TienDang.App/StarterPack/CREDITS.md). Distribution packages include mpv/FFmpeg/yt-dlp/Deno and runtime notices.
+Application source and documentation are available under the [MIT License](LICENSE).
 
-## Tiếng Việt
-
-Thêm ảnh/video hoặc kéo thả, chọn để xem trước rồi **Đặt làm nền**. Bật **Tự đổi nền** để chạy từ mục đang chọn và tiếp tục luân phiên. Bản mới giữ nguyên thư viện và setting cũ. Đóng cửa sổ sẽ thu app xuống khay hệ thống; chọn **Thoát** để dừng hẳn.
-
-Hướng dẫn: [HUONG-DAN.txt](HUONG-DAN.txt). Video và ảnh mẫu có nguồn, giấy phép riêng.
+Artwork, bundled wallpapers and third-party tools retain their own licenses. See [ASSET-LICENSES.md](ASSET-LICENSES.md) and the [starter wallpaper credits](src/TienDang.App/StarterPack/CREDITS.md) for attribution. Release packages include the applicable third-party license notices.
