@@ -111,7 +111,7 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
         var version = ++_version;
         _pending?.Lifetime.Cancel();
         var candidate = new Layer(message); _pending = candidate;
-        _options = new() { Muted = message.Muted, Volume = message.Volume, Fit = message.Fit, FrameRateLimit = message.FrameRateLimit };
+        _options = new() { Muted = message.Muted, Volume = message.Volume, Fit = message.Fit, FrameRateLimit = message.FrameRateLimit, LoopVideo = message.LoopVideo };
         var locked = false; var transitionFailure = false;
         try
         {
@@ -181,6 +181,7 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
             {
                 if (candidate.Video != null)
                 {
+                    await candidate.Video.SetLoopAsync(_options.LoopVideo);
                     await candidate.Video.SetOptionsAsync(_options.Muted, _options.Volume, _options.Fit, _options.FrameRateLimit);
                     await candidate.Video.SetPausedAsync(_paused);
                 }
@@ -343,6 +344,7 @@ internal sealed class WallpaperPresenter(Window owner) : IDisposable
         var active = _active;
         if (active?.Video != null)
         {
+            await active.Video.SetLoopAsync(options.LoopVideo);
             await active.Video.SetOptionsAsync(options.Muted, options.Volume, options.Fit, options.FrameRateLimit);
         }
         // A pending player may not have its pipe connected yet. The latest

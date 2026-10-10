@@ -1,6 +1,7 @@
 **/bin/
 **/obj/
 artifacts/
+src/TienDang.App/TaskbarTools/TranslucentTB/
 .vs/
 .vscode/
 .idea/

@@ -29,11 +29,14 @@ public partial class MainWindow : Window
     private bool _actionBusy;
     private nint _powerRegistration;
     private readonly bool _smoke;
+    private readonly TaskbarTransparency _taskbar;
+    private bool _taskbarBusy;
     public MainWindow(LibraryState state, StateStore store, bool smoke = false)
     {
         _state = state;
         _store = store;
         _smoke = smoke;
+        _taskbar = new(store.DirectoryPath);
         L.SetLanguage(state.Settings.Language);
         _searchDebounce.Tick += (_, _) => { _searchDebounce.Stop(); RefreshItems(); };
         InitializeComponent();
@@ -49,6 +52,7 @@ public partial class MainWindow : Window
         _engine.DisplaysChanged += RefreshDisplays;
         RefreshDisplays();
         LoadSettings();
+        TransparentTaskbarBox.IsChecked = state.Settings.TransparentTaskbar;
         RefreshPlaylists(Playlist.AllId);
         _initialized = true;
         RefreshItems();
@@ -86,6 +90,7 @@ public partial class MainWindow : Window
                 try { Startup.RefreshExisting(_store.DirectoryPath); }
                 catch (Exception ex) { _store.Log("Startup refresh failed: " + ex.Message); }
                 await Run(_engine.Restore);
+                await RestoreTaskbarAsync();
             }
             UpdatePlayback();
             await UpdatePreview();
@@ -94,6 +99,7 @@ public partial class MainWindow : Window
 
     private nint WindowMessage(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
+        RefreshTaskbar((uint)msg);
         if (msg == 0x218 && wParam == 0x8013)
         {
             var guid = Marshal.PtrToStructure<Guid>(lParam);
@@ -482,6 +488,7 @@ public partial class MainWindow : Window
     {
         if (_exiting) return;
         _exiting = true;
+        try { _taskbar.Dispose(); } catch (Exception ex) { _store.Log("Taskbar restore on exit: " + ex.Message); }
         _searchDebounce.Stop(); ReleaseThumbnails();
         InlinePreview.Dispose();
         _thumbnails.Dispose();

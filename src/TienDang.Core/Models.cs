@@ -79,6 +79,7 @@ public sealed class AppSettings
     public bool PauseMaximized { get; set; }
     public bool PauseOnBattery { get; set; }
     public bool ResumeOnLaunch { get; set; } = true;
+    public bool TransparentTaskbar { get; set; }
     public bool Muted { get; set; } = true;
     public int Volume { get; set; } = 30;
     public string Fit { get; set; } = "Fill";
@@ -107,7 +108,7 @@ public sealed class LibraryState
             Playlists = Playlists.Select(p => new Playlist { Id = p.Id, Name = p.Name, ItemIds = [.. p.ItemIds] }).ToList(),
             Settings = new AppSettings { PerformanceProfile = s.PerformanceProfile, ReleaseWhenBusy = s.ReleaseWhenBusy, AppRules = s.AppRules.Select(r => new AppRule { ProcessName = r.ProcessName, Action = r.Action }).ToList(), Language = s.Language, FrameRateLimit = s.FrameRateLimit, IntervalSeconds = s.IntervalSeconds, Shuffle = s.Shuffle,
                 AdvanceAtVideoEnd = s.AdvanceAtVideoEnd, PauseFullscreen = s.PauseFullscreen, PauseMaximized = s.PauseMaximized, PauseOnBattery = s.PauseOnBattery, ResumeOnLaunch = s.ResumeOnLaunch,
-                Muted = s.Muted, Volume = s.Volume, Fit = s.Fit, CopyOnImport = s.CopyOnImport, WasRunning = s.WasRunning,
+                Muted = s.Muted, Volume = s.Volume, Fit = s.Fit, CopyOnImport = s.CopyOnImport, WasRunning = s.WasRunning, TransparentTaskbar = s.TransparentTaskbar,
                 Monitors = s.Monitors.Select(m => new MonitorProfile { MonitorId = m.MonitorId, PlaylistId = m.PlaylistId, LastItemId = m.LastItemId, RemainingSeconds = m.RemainingSeconds }).ToList(),
                 Schedules = s.Schedules.Select(r => new ScheduleRule { Id = r.Id, Name = r.Name, PlaylistId = r.PlaylistId, MonitorId = r.MonitorId, Start = r.Start,
                     End = r.End, Days = [.. r.Days], Enabled = r.Enabled }).ToList() }

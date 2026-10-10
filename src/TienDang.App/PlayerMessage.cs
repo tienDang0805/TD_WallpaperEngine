@@ -9,6 +9,7 @@ public sealed class PlayerMessage
     public int Volume { get; set; }
     public string Fit { get; set; } = "Fill";
     public int FrameRateLimit { get; set; }
+    public bool LoopVideo { get; set; }
     public string Language { get; set; } = "vi";
     public string? Error { get; set; }
     public string? RequestId { get; set; }

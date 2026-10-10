@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3 — 2026-10-10
+
+- Loop pinned video wallpapers in mpv itself, including when EOF rotation is enabled. Interval rotation and single-item collections also use native looping, keeping the renderer alive instead of depending on EOF callbacks to restart playback.
+- Keep EOF-based rotation for collections with multiple usable wallpapers. Update the loop policy when settings change, a pin is removed or rotation starts with the current wallpaper.
+- Initialize the collection correctly when setting a wallpaper before starting rotation.
+- Add a **Transparent taskbar** checkbox to the main library header, with English/Vietnamese labels and a saved, opt-in preference.
+- On Windows 11, manage a SHA256-pinned, unmodified TranslucentTB 2026.2 portable helper in a separate private process/job. It uses app-owned configuration, hides its tray icon, handles Explorer/display/theme changes and restores taskbar appearance on disable/exit. Existing TranslucentTB sessions are left alone.
+- Windows 10 uses a classic taskbar composition backend that captures/restores the previous accent. See release notes for platform coverage and remaining tests.
+
+
 ## 1.0.2 — 2026-10-06
 
 - Fix the remaining physical desktop transition flash reported in 1.0.1. Retain one owned MPV renderer/native video window for video-to-video changes; replace the old file and decoder through `loadfile replace`.

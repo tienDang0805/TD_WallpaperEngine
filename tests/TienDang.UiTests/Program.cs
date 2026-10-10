@@ -53,6 +53,8 @@ internal static class Program
         if (args.Contains("--activity")) return ActivityChecks.Run(app, root);
         if (args.Contains("--phase4")) return PhaseFourUiChecks.Run(app, root);
         if (args.Contains("--controller")) return ControllerChecks.Run(app);
+        if (args.Contains("--taskbar")) return TaskbarChecks.Run(app, args.Contains("--taskbar-live"));
+        if (args.Contains("--loops")) return LoopChecks.Run(app, Path.GetFullPath(args[Array.IndexOf(args, "--loops") + 1]));
         if (args.Contains("--renderer-reuse")) return RendererReuseChecks.Run(app, Path.GetFullPath(args[Array.IndexOf(args, "--renderer-reuse") + 1]));
         if (args.Contains("--diagnostics")) return DiagnosticsChecks.Run(root);
         if (args.Contains("--stage2")) return StageTwoChecks.Run(root, args);

@@ -494,5 +494,11 @@
   "Dung lượng thumbnail": "Thumbnail cache size",
   "Bấm Quét thư viện để xem file thiếu.": "Select Scan library to check for missing files.",
   "Các đường dẫn tìm lại sẽ hiện tại đây để bạn kiểm tra.": "Relink suggestions will appear here for review.",
-  "Một bản TD-WallpaperEngine khác đang phát trên màn hình này. Thoát bản đó từ khay hệ thống rồi thử lại.": "Another TD-WallpaperEngine instance is using this display. Exit that instance from the system tray, then try again."
+  "Một bản TD-WallpaperEngine khác đang phát trên màn hình này. Thoát bản đó từ khay hệ thống rồi thử lại.": "Another TD-WallpaperEngine instance is using this display. Exit that instance from the system tray, then try again.",
+  "Taskbar trong suốt": "Transparent taskbar",
+  "Làm trong suốt nền thanh tác vụ Windows. Bỏ tick để khôi phục.": "Make the Windows taskbar background transparent. Uncheck to restore it.",
+  "Một bản app khác đang điều khiển taskbar.": "Another app instance is already controlling the taskbar.",
+  "TranslucentTB đang chạy. Thoát TranslucentTB trước khi bật tùy chọn này.": "TranslucentTB is already running. Exit it before enabling this option.",
+  "Thiếu hoặc hỏng bộ hỗ trợ taskbar. Cài lại bản app đầy đủ.": "The taskbar helper is missing or damaged. Reinstall the complete app package.",
+  "Không bật được taskbar trong suốt. Xem log hoặc thử cài lại app.": "Could not enable taskbar transparency. Check the log or reinstall the app."
 }

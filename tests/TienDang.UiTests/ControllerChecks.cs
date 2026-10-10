@@ -78,6 +78,26 @@ internal static class ControllerChecks
         L.SetLanguage("en");
         using (var rig = new Rig())
         {
+            rig.State.Settings.AdvanceAtVideoEnd = true;
+            await rig.Engine.Pin(rig.A, "*");
+            Require(rig.Current.Commands.Last(c => c.Command == "load").LoopVideo, "pinned video loops even when EOF rotation is enabled");
+            await rig.Commit();
+            var loads = rig.Current.Commands.Count(c => c.Command == "load");
+            rig.Current.Emit("ended", rig.Snapshot.ActiveGeneration); await Drain();
+            Require(rig.Current.Commands.Count(c => c.Command == "load") == loads && rig.Snapshot.Pinned, "pinned EOF does not advance or stop wallpaper");
+            rig.Engine.Unpin(); await Drain();
+            Require(!rig.Current.Commands.Last(c => c.Command == "options").LoopVideo, "unpin restores multi-item EOF rotation policy");
+            rig.State.Settings.AdvanceAtVideoEnd = false; await rig.Engine.ApplySavedSettings(false);
+            Require(rig.Current.Commands.Last(c => c.Command == "options").LoopVideo, "interval rotation loops video between scheduled changes");
+        }
+        using (var rig = new Rig())
+        {
+            rig.State.Items = [rig.A]; rig.State.Settings.AdvanceAtVideoEnd = true;
+            await rig.Engine.Apply("*", Playlist.AllId);
+            Require(rig.Current.Commands.Last(c => c.Command == "load").LoopVideo, "single-item collection loops without needless reload at EOF");
+        }
+        using (var rig = new Rig())
+        {
             await rig.Engine.Apply("*", Playlist.AllId, "a");
             Require(rig.Snapshot.ActiveId == null && rig.Snapshot.RequestedId == "a" && !rig.Snapshot.Loaded && rig.State.Settings.Monitors[0].LastItemId == null, "request does not claim playback or persist last-item before loaded");
             rig.Seconds = 5; await rig.Engine.Tick();

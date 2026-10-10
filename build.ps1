@@ -1,9 +1,10 @@
-param([switch]$Portable, [string]$OutputDirectory = "artifacts/release-1.0.2", [string]$StarterPackDirectory)
+param([switch]$Portable, [string]$OutputDirectory = "artifacts/release-1.0.3", [string]$StarterPackDirectory)
 $ErrorActionPreference = "Stop"
 Push-Location $PSScriptRoot
 try {
     & (Join-Path $PSScriptRoot "prepare-player.ps1")
     & (Join-Path $PSScriptRoot "prepare-download-tools.ps1")
+    & (Join-Path $PSScriptRoot "prepare-taskbar-tools.ps1")
     $privateSdk = Join-Path $PSScriptRoot "artifacts/toolchain/dotnet.exe"
     $sdk = if (Test-Path -LiteralPath $privateSdk) { $privateSdk } else { (Get-Command dotnet).Source }
     & $sdk build TienDangWallpaper.slnx -c Release --nologo

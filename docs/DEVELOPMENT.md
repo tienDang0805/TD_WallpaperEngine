@@ -73,6 +73,15 @@ For demos: exit the active app first, launch a single packaged app, record the w
 
 ## Next QA
 
+### 1.0.3 continuation
+
+- `PlayerMessage.LoopVideo` is computed from pin state, EOF rotation and usable collection size. Set `loop-file=inf` before unpausing the committed media. Keep EOF events for multi-item EOF rotation; do not change shuffle order to implement looping.
+- `TaskbarTransparency` serializes changes, performs helper verification/copy/start off the WPF thread and cancels warm-up on disposal. `MainWindow.Taskbar.cs` owns preference transactions and the main-screen checkbox. Closing to tray keeps the effect; Exit/disable restores it.
+- Windows 11 uses the pinned, unmodified GPL-3.0 TranslucentTB 2026.2 helper in a private job with a per-session ownership lease. Config/files live in the selected library's toolsets folder. Never close/reconfigure an unrelated TranslucentTB instance. Windows 10 uses a separate classic composition backend and still needs physical QA.
+- Prepare with `prepare-taskbar-tools.ps1`. Run UI checks with `--controller`, `--loops artifacts/loop-regression.mp4`, `--taskbar`; `--taskbar --taskbar-live` explicitly modifies/restores the physical taskbar briefly. The loop fixture must be short enough for four loops within twelve seconds.
+- The user's installed 1.0.2 app/library/startup remain in place during this development run. Do not assume an upgrade has been installed just because new artifacts were published.
+
+
 - [ ] Real cold boot and startup resource contention.
 - [ ] Games/fullscreen/maximize under GPU load.
 - [ ] Two physical monitors, mixed DPI, hotplug.

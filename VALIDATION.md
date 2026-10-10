@@ -1,4 +1,23 @@
-# Validation — 1.0.2
+# Validation — 1.0.3
+
+Checked on Windows 11 25H2 x64 (build 26200), 2026-10-10, .NET SDK 10.0.300.
+
+## 1.0.3 checks
+
+- Build: zero warnings/errors. Core suite: 23/23 groups, including the new taskbar preference in detached snapshots.
+- Controller regression: pinned video looping with EOF rotation enabled, unpin policy updates, interval rotation, single-item looping, plus existing recovery/pause/ownership checks.
+- Real MPV/presenter playback: four consecutive loops of a 1.2-second H.264 fixture, same media/renderer, no EOF rotation event, pause/resume, disabling native looping and process cleanup.
+- Native transition suite: all covered handoff, invalid target, renderer reuse, EOF rotation, rapid selection and cleanup cases pass with the new loop policy.
+- Taskbar preference: opt-in default, main-window checkbox, persisted snapshots, enable/disable, failure cleanup and duplicate-enable serialization. The rendered checkbox fits at the minimum 1040×690 window size.
+- Real Windows 11 TranslucentTB helper: starts with the app-owned clear configuration, a conflicting second owner is rejected without stopping the first, and disable exits the owned helper. No unrelated TranslucentTB or Explorer process is terminated.
+- Taskbar startup runs off the UI thread; disposing during a delayed backend startup cancels it rather than waiting the full startup timeout.
+- Published EXE 1.0.3: 5/5 isolated library/startup/recovery cases, with four starter items for fresh libraries. Manual first data approximately 776 ms; startup approximately 3,304 ms. These are launch checks, not cold-boot benchmarks.
+
+The 1.0.3 installer uses the previously tested install/uninstall flow with updated version guards and bundled helper files. Its full install/uninstall smoke was not repeated while the owner's installed 1.0.2 app was running; the installer intentionally asks for the current app to exit first. Portable content and helper pins are verified during packaging.
+
+Physical Windows 10/classic taskbar, secondary-monitor taskbar, customized Explorer shells and taskbar recovery after a real Explorer restart remain unverified. The Computer Use window binding was stale during this run, so UI layout was checked through the native application's rendered test window rather than claiming a fresh physical-desktop screenshot.
+
+## Previous 1.0.2 validation
 
 Checked on Windows x64, 2026-10-06, .NET SDK 10.0.300. This records completed checks, not certification of every Windows/GPU configuration. Unchanged ownership/phase-4 behavior retains the earlier 1.0.1 results below.
 

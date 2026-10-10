@@ -165,6 +165,7 @@ internal sealed partial class MpvPlayer : IDisposable, IAsyncDisposable
         _frameRateLimit = limit;
     }
     public Task RestartAsync() => CommandAsync("seek", 0, "absolute+exact");
+    internal Task SetLoopAsync(bool loop) => CommandAsync("set_property", "loop-file", loop ? "inf" : "no");
     internal Task<JsonElement> GetPropertyAsync(string name) => CommandAsync("get_property", name);
     internal Task ScreenshotAsync(string path, CancellationToken token = default) => CommandAsync(token, "screenshot-to-file", path, "video");
     internal Task SeekAsync(double seconds) => CommandAsync("seek", seconds, "absolute+exact");

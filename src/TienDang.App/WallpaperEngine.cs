@@ -173,7 +173,10 @@ internal sealed class WallpaperEngine : IDisposable
             if (first != null)
             {
                 if (session.Requested == null && session.Item?.Id == first.Id && session.Host != null && session.Loaded)
+                {
                     session.Clock.Reset(first.DurationSeconds ?? _state.Settings.IntervalSeconds);
+                    await Send(session, Options("options", session));
+                }
                 else await Switch(session, first);
             }
             else await Next(session);
@@ -215,7 +218,11 @@ internal sealed class WallpaperEngine : IDisposable
         {
             var profile = _state.Settings.Monitors.Find(p => p.MonitorId == display.Id);
             if (profile == null) { profile = new() { MonitorId = display.Id }; _state.Settings.Monitors.Add(profile); }
-            if (!_sessions.TryGetValue(display.Id, out var session)) { session = new(display, profile); _sessions.Add(display.Id, session); }
+            if (!_sessions.TryGetValue(display.Id, out var session))
+            {
+                session = new(display, profile) { PlaylistId = _state.ResolvePlaylist(DateTime.Now, profile) };
+                _sessions.Add(display.Id, session);
+            }
             ResetRecovery(session); await Switch(session, item, true);
         }
         _state.Settings.WasRunning = Running;
@@ -225,7 +232,11 @@ internal sealed class WallpaperEngine : IDisposable
 
     public void Unpin()
     {
-        foreach (var session in _sessions.Values) { session.Pinned = false; session.RequestedPinned = false; session.RetryPinned = false; }
+        foreach (var session in _sessions.Values)
+        {
+            session.Pinned = false; session.RequestedPinned = false; session.RetryPinned = false;
+            if (session.Host != null) _ = Send(session, Options("options", session));
+        }
         UpdateStatus();
     }
     public async Task NextAll()
@@ -255,7 +266,7 @@ internal sealed class WallpaperEngine : IDisposable
         if (resetOrder) foreach (var s in _sessions.Values) s.Rotation.Start(Available(s), _state.Settings.Shuffle, s.Item?.Id);
         foreach (var s in _sessions.Values.ToArray())
         {
-            if (s.Host != null) await Send(s, Options("options"));
+            if (s.Host != null) await Send(s, Options("options", s));
             s.Clock.Reset(s.Item?.DurationSeconds ?? _state.Settings.IntervalSeconds);
         }
 
@@ -304,9 +315,13 @@ internal sealed class WallpaperEngine : IDisposable
         await Switch(session, item);
     }
 
-    private PlayerMessage Options(string command) => new()
+    private PlayerMessage Options(string command, Session? session = null) => new()
     {
-        Command = command, Muted = _state.Settings.Muted, Volume = _state.Settings.Volume, Fit = _state.Settings.Fit, FrameRateLimit = _state.Settings.FrameRateLimit, Language = _state.Settings.Language
+        Command = command, Muted = _state.Settings.Muted, Volume = _state.Settings.Volume, Fit = _state.Settings.Fit, FrameRateLimit = _state.Settings.FrameRateLimit, Language = _state.Settings.Language,
+        // Pinning always loops. EOF rotation only needs EOF events when another
+        // usable item exists; the decoder can loop a single video itself.
+        LoopVideo = session != null && ((session.Requested != null ? session.RequestedPinned : session.Pinned) ||
+            !_state.Settings.AdvanceAtVideoEnd || Available(session).Count <= 1)
     };
 
     private static void ResetRecovery(Session session)
@@ -364,7 +379,7 @@ internal sealed class WallpaperEngine : IDisposable
                 session.Host = host;
             }
             await session.Host.Send(Options(session.Paused ? "pause" : "play"), session.Lifetime.Token);
-            var load = Options("load");
+            var load = Options("load", session);
             load.Path = item.Path; load.IsVideo = item.IsVideo; load.Generation = generation;
             await session.Host.Send(load, session.Lifetime.Token);
         }

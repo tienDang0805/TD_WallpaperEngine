@@ -12,10 +12,10 @@ Get the latest version from the [Releases page](https://github.com/tienDang0805/
 
 | Download | Description |
 | --- | --- |
-| [Windows installer](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-1.0.2-Setup.exe) | Installs the app for your Windows account and includes shortcuts and an uninstaller. |
-| [Portable ZIP](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/TD-WallpaperEngine-1.0.2-Portable.zip) | Extract the folder, then run `TienDang.Wallpaper.exe`. Keep the included files and folders together. |
+| [Windows installer](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/TD-WallpaperEngine-1.0.3-Setup.exe) | Installs the app for your Windows account and includes shortcuts and an uninstaller. |
+| [Portable ZIP](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/TD-WallpaperEngine-1.0.3-Portable.zip) | Extract the folder, then run `TienDang.Wallpaper.exe`. Keep the included files and folders together. |
 | Source code | Available as ZIP and tar.gz on each release page. See [Build from source](#build-from-source) for instructions. |
-| [SHA256 checksums](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.2/SHA256SUMS.txt) | Verify the downloaded release files. |
+| [SHA256 checksums](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/SHA256SUMS.txt) | Verify the downloaded release files. |
 
 A new library includes two video wallpapers and two fantasy images to try. Updating an existing installation keeps your library and settings.
 
@@ -45,7 +45,8 @@ See the app in use on a Windows desktop, including a wallpaper change through **
 - **Collections and favorites.** Keep wallpapers organized and find the ones you use most.
 - **Automatic rotation.** Choose an interval, schedule and target monitor. Shuffle starts with your selected wallpaper and avoids repeats until the round is complete.
 - **Smoother video changes.** Keep the previous frame on screen while the next video loads. Preview shows a thumbnail until playback is ready.
-- **Playback controls.** Choose the display fit, volume and frame rate: original, 15, 30 or 60 FPS.
+- **Transparent taskbar.** Turn it on from the library header to show more of your wallpaper while keeping taskbar icons visible. Uncheck it to restore the taskbar background.
+- **Playback controls.** A video set as wallpaper repeats automatically. Choose the display fit, volume and frame rate: original, 15, 30 or 60 FPS.
 - **Resource management.** Pause playback for fullscreen or maximized apps, while on battery, or through application rules. An optional memory-saving mode releases the player while paused.
 - **Library maintenance.** Locate missing files, reconnect moved folders, back up media and undo cleanup operations. Playback diagnostics help investigate problems.
 
@@ -65,7 +66,7 @@ Your library and settings are stored in `%LOCALAPPDATA%\TienDangWallpaper` and a
 
 ## Changelog
 
-See the [full changelog](CHANGELOG.md) for version history and the [1.0.2 release notes](docs/RELEASE-1.0.2.md) for details of the latest changes and testing.
+See the [full changelog](CHANGELOG.md) for version history and the [1.0.3 release notes](docs/RELEASE-1.0.3.md) for details of the latest changes and testing.
 
 ## Build from source
 
@@ -74,7 +75,7 @@ You will need Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/dow
 ```powershell
 git clone https://github.com/tienDang0805/TD_WallpaperEngine.git
 cd TD_WallpaperEngine
-./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.2
+./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.3
 ```
 
 The build scripts download pinned media tools, verify their SHA256 checksums, run the core tests and publish the app. Source builds let you import your own wallpapers; bundled sample media is distributed with releases rather than stored in Git.
@@ -83,7 +84,7 @@ To include the sample wallpapers and produce an installer, provide the four-file
 
 ```powershell
 ./build.ps1 -Portable -StarterPackDirectory "D:/StarterPack"
-./package-release.ps1 -Version 1.0.2 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
+./package-release.ps1 -Version 1.0.3 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
 ```
 
 The repository contains application source, tests, build scripts, UI assets and documentation. Build outputs, external executables, wallpaper libraries and recordings are excluded. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for the project structure, testing and release process.

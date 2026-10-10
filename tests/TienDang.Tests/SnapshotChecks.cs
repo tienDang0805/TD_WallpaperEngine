@@ -8,7 +8,7 @@ internal static class SnapshotChecks
         var directory = Path.Combine(Path.GetTempPath(), "TienDang-snapshots-" + Guid.NewGuid().ToString("N"));
         var state = new LibraryState { Items = [new WallpaperItem { Id = "item", Name = "Tên riêng ✓", Path = "a.jpg", OriginalPath = "old.jpg", SourceUrl = "https://example.com/a.jpg", Favorite = true, DurationSeconds = 15 }] };
         state.Playlists.Add(new Playlist { Id = "custom", Name = "Own collection", ItemIds = ["item"] });
-        state.Settings = new AppSettings { Language = "en", FrameRateLimit = 30, IntervalSeconds = 60, Shuffle = false, AdvanceAtVideoEnd = true,
+        state.Settings = new AppSettings { TransparentTaskbar = true, Language = "en", FrameRateLimit = 30, IntervalSeconds = 60, Shuffle = false, AdvanceAtVideoEnd = true,
             PauseFullscreen = false, PauseMaximized = true, PauseOnBattery = true, ResumeOnLaunch = false, Muted = false, Volume = 80, Fit = "Fit", CopyOnImport = true, WasRunning = true,
             Monitors = [new MonitorProfile { MonitorId = "screen", PlaylistId = "custom", LastItemId = "item", RemainingSeconds = 12.5 }],
             Schedules = [new ScheduleRule { Id = "rule", Name = "Evening", PlaylistId = "custom", MonitorId = "screen", Days = [DayOfWeek.Friday], Start = TimeSpan.FromHours(17), End = TimeSpan.FromHours(21), Enabled = false }] };

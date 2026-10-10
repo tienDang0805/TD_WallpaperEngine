@@ -1,4 +1,4 @@
-param([string]$Version='1.0.2', [string]$Compiler, [switch]$Force)
+param([string]$Version='1.0.3', [string]$Compiler, [switch]$Force)
 $ErrorActionPreference='Stop'
 $taskRoot=$PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid version.'}
@@ -15,17 +15,18 @@ $taskDocuments=@('README.md','HUONG-DAN.txt','CHANGELOG.md','LICENSE','ASSET-LIC
 foreach($document in $taskDocuments){Copy-Item -LiteralPath (Join-Path $taskRoot $document) -Destination $taskRelease -Force}
 $taskDocsTarget=Join-Path $taskRelease 'docs'
 New-Item -ItemType Directory -Force $taskDocsTarget | Out-Null
-foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.2.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
+foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.3.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
 $taskImagesTarget=Join-Path $taskDocsTarget 'images'
 New-Item -ItemType Directory -Force $taskImagesTarget | Out-Null
 foreach($image in @('library.png','settings.png')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/images/'+$image)) -Destination $taskImagesTarget -Force }
-$taskRequired=@('TienDang.Wallpaper.dll','TienDang.Core.dll','Player/mpv.exe','Player/THIRD-PARTY.txt','Player/LICENSE.GPL.txt','Player/LICENSE.LGPL.txt','DownloadTools/THIRD-PARTY.txt','DownloadTools/yt-dlp-LICENSE.txt','DownloadTools/Deno-LICENSE.txt','DownloadTools/FFmpeg-GPLv3.txt','StarterPack/galaxy-eye.mp4','StarterPack/water-fantasy.mp4','StarterPack/forest-valley.jpg','StarterPack/fortress-city.png','StarterPack/CREDITS.md')
+$taskRequired=@('TienDang.Wallpaper.dll','TienDang.Core.dll','Player/mpv.exe','Player/THIRD-PARTY.txt','Player/LICENSE.GPL.txt','Player/LICENSE.LGPL.txt','DownloadTools/THIRD-PARTY.txt','DownloadTools/yt-dlp-LICENSE.txt','DownloadTools/Deno-LICENSE.txt','DownloadTools/FFmpeg-GPLv3.txt','StarterPack/galaxy-eye.mp4','StarterPack/water-fantasy.mp4','StarterPack/forest-valley.jpg','StarterPack/fortress-city.png','StarterPack/CREDITS.md','TaskbarTools/TranslucentTB/ExplorerHooks.dll','TaskbarTools/TranslucentTB/ExplorerTAP.dll','TaskbarTools/TranslucentTB/Xaml.dll','TaskbarTools/TranslucentTB/ProgramLog.dll','TaskbarTools/TranslucentTB/resources.pri','TaskbarTools/TranslucentTB/LICENSE.md','TaskbarTools/TranslucentTB/THIRD-PARTY.txt','TaskbarTools/TranslucentTB/FILE-HASHES.json')
 foreach($file in $taskRequired){if(!(Test-Path -LiteralPath (Join-Path $taskRelease $file))){throw ('Missing distribution file: '+$file)}}
 $taskPins=[ordered]@{
 'Player/mpv.exe'='2924FF596AFD0352985B734B132F17F66564CC001E44D9E2E2CA7F5B5C16309B'
 'DownloadTools/yt-dlp.exe'='66674953FE251B89F4D08C5F0E35E0728679BD67AB3D7D05C0562AF101DD3E7A'
 'DownloadTools/deno.exe'='E020F3E232BD16E33768DEE528E5983349C962952051CED0A5D58AD42F5D9B33'
 'DownloadTools/ffmpeg.exe'='F39B47B36F100DA0F393DD9A6173B1C67BB351E51858B28F69293955D0A384F3'
+'TaskbarTools/TranslucentTB/TranslucentTB.exe'='F933F5BF70405E13FEADBCC53883F2676B5A8A1DAE214B52C0FE0971C583A0FF'
 }
 foreach($file in $taskPins.Keys){if((Get-FileHash -LiteralPath (Join-Path $taskRelease $file)).Hash -ne $taskPins[$file]){throw ('Tool checksum mismatch: '+$file)}}
 $taskFiles=@(Get-ChildItem -LiteralPath $taskRelease -Recurse -File | Where-Object {$_.Extension -ne '.pdb' -and $_.Name -ne 'RELEASE-MANIFEST.json'})
