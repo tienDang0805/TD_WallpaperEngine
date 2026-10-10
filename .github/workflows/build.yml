@@ -16,10 +16,15 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Build, test and publish
         shell: pwsh
-        run: ./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.3
+        run: ./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.4
+      - name: Check renamed assemblies and compatibility
+        shell: pwsh
+        run: |
+          dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll --naming
+          if ($LASTEXITCODE -ne 0) { throw 'Naming compatibility checks failed.' }
       - uses: actions/upload-artifact@v4
         with:
-          name: TD-WallpaperEngine-1.0.3-win-x64-build
-          path: artifacts/release-1.0.3
+          name: TD_Wallpaper-1.0.4-win-x64-build
+          path: artifacts/release-1.0.4
           if-no-files-found: error
           retention-days: 14

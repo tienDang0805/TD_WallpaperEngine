@@ -1,6 +1,6 @@
-# TD-WallpaperEngine
+# TD_Wallpaper
 
-Bring your Windows desktop to life with video wallpapers, or build a collection of images that changes throughout the day. TD-WallpaperEngine lets you preview, organize and apply your wallpapers from one place, with controls for playback, rotation and resource usage.
+Bring your Windows desktop to life with video wallpapers, or build a collection of images that changes throughout the day. TD_Wallpaper lets you preview, organize and apply your wallpapers from one place, with controls for playback, rotation and resource usage.
 
 The app supports English and Vietnamese and runs independently of Steam and Wallpaper Engine.
 
@@ -12,10 +12,10 @@ Get the latest version from the [Releases page](https://github.com/tienDang0805/
 
 | Download | Description |
 | --- | --- |
-| [Windows installer](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/TD-WallpaperEngine-1.0.3-Setup.exe) | Installs the app for your Windows account and includes shortcuts and an uninstaller. |
-| [Portable ZIP](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/TD-WallpaperEngine-1.0.3-Portable.zip) | Extract the folder, then run `TienDang.Wallpaper.exe`. Keep the included files and folders together. |
+| [Windows installer](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.4/TD_Wallpaper-1.0.4-Setup.exe) | Installs the app for your Windows account and includes shortcuts and an uninstaller. |
+| [Portable ZIP](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.4/TD_Wallpaper-1.0.4-Portable.zip) | Extract the folder, then run `TD_Wallpaper.exe`. Keep the included files and folders together. |
 | Source code | Available as ZIP and tar.gz on each release page. See [Build from source](#build-from-source) for instructions. |
-| [SHA256 checksums](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.3/SHA256SUMS.txt) | Verify the downloaded release files. |
+| [SHA256 checksums](https://github.com/tienDang0805/TD_WallpaperEngine/releases/download/v1.0.4/SHA256SUMS.txt) | Verify the downloaded release files. |
 
 A new library includes two video wallpapers and two fantasy images to try. Updating an existing installation keeps your library and settings.
 
@@ -54,7 +54,7 @@ See the app in use on a Windows desktop, including a wallpaper change through **
 
 ## Quick start
 
-1. Install the app, or extract the portable ZIP and run `TienDang.Wallpaper.exe`.
+1. Install the app, or extract the portable ZIP and run `TD_Wallpaper.exe`.
 2. Open the library and try a bundled wallpaper, or use **Add wallpaper** to import your own files or a URL.
 3. Select a wallpaper to preview it, then choose **Set as wallpaper**.
 4. To cycle through a collection, enable automatic rotation and choose the interval, shuffle order and target monitor.
@@ -62,11 +62,11 @@ See the app in use on a Windows desktop, including a wallpaper change through **
 
 Closing the main window sends the app to the system tray and keeps the wallpaper running. Use **Exit** from the tray menu to stop the app completely. Exit the previous version before installing an update.
 
-Your library and settings are stored in `%LOCALAPPDATA%\TienDangWallpaper` and are preserved during updates and uninstall. Files imported without copying still use their original locations; enable library copying if you want to move or delete the originals later.
+New libraries are stored in `%LOCALAPPDATA%\TD_Wallpaper`. Existing installations continue using `%LOCALAPPDATA%\TienDangWallpaper`, so their media paths, settings and backups stay intact during updates and uninstall. Files imported without copying still use their original locations; enable library copying if you want to move or delete the originals later.
 
 ## Changelog
 
-See the [full changelog](CHANGELOG.md) for version history and the [1.0.3 release notes](docs/RELEASE-1.0.3.md) for details of the latest changes and testing.
+See the [full changelog](CHANGELOG.md) for version history and the [1.0.4 release notes](docs/RELEASE-1.0.4.md) for details of the latest changes and testing.
 
 ## Build from source
 
@@ -75,7 +75,7 @@ You will need Windows x64 and the [.NET 10 SDK](https://dotnet.microsoft.com/dow
 ```powershell
 git clone https://github.com/tienDang0805/TD_WallpaperEngine.git
 cd TD_WallpaperEngine
-./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.3
+./build.ps1 -Portable -OutputDirectory artifacts/release-1.0.4
 ```
 
 The build scripts download pinned media tools, verify their SHA256 checksums, run the core tests and publish the app. Source builds let you import your own wallpapers; bundled sample media is distributed with releases rather than stored in Git.
@@ -84,7 +84,7 @@ To include the sample wallpapers and produce an installer, provide the four-file
 
 ```powershell
 ./build.ps1 -Portable -StarterPackDirectory "D:/StarterPack"
-./package-release.ps1 -Version 1.0.3 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
+./package-release.ps1 -Version 1.0.4 -Compiler "C:/Path/To/Inno Setup 6/ISCC.exe"
 ```
 
 The repository contains application source, tests, build scripts, UI assets and documentation. Build outputs, external executables, wallpaper libraries and recordings are excluded. See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for the project structure, testing and release process.
@@ -93,4 +93,4 @@ The repository contains application source, tests, build scripts, UI assets and 
 
 Application source and documentation are available under the [MIT License](LICENSE).
 
-Artwork, bundled wallpapers and third-party tools retain their own licenses. See [ASSET-LICENSES.md](ASSET-LICENSES.md) and the [starter wallpaper credits](src/TienDang.App/StarterPack/CREDITS.md) for attribution. Release packages include the applicable third-party license notices.
+Artwork, bundled wallpapers and third-party tools retain their own licenses. See [ASSET-LICENSES.md](ASSET-LICENSES.md) and the [starter wallpaper credits](src/TD_Wallpaper.App/StarterPack/CREDITS.md) for attribution. Release packages include the applicable third-party license notices.

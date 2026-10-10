@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$toolDirectory = Join-Path $PSScriptRoot 'src\TienDang.App\DownloadTools'
+$toolDirectory = Join-Path $PSScriptRoot 'src\TD_Wallpaper.App\DownloadTools'
 $downloadDirectory = Join-Path $PSScriptRoot 'artifacts\download-tools'
 New-Item -ItemType Directory -Force $toolDirectory, $downloadDirectory | Out-Null
 function Get-VerifiedFile([string]$Uri, [string]$Destination, [string]$Hash) {

@@ -2,14 +2,14 @@
 
 ## Structure
 
-- src/TienDang.Core: schema-1 library, persistence, rotation/schedules, media validation, backup and download utilities.
-- src/TienDang.App: WPF/localization, previews, native desktop attachment, controller, separate wallpaper worker/mpv, Windows policies and download queue.
-- tests/TienDang.Tests: core/persistence/security regressions.
-- tests/TienDang.UiTests: native UI/controller/transport/transition/ownership and portable smoke checks.
-- tests/TienDang.VideoTests: GPU/codec diagnostics.
+- src/TD_Wallpaper.Core: schema-1 library, persistence, rotation/schedules, media validation, backup and download utilities.
+- src/TD_Wallpaper.App: WPF/localization, previews, native desktop attachment, controller, separate wallpaper worker/mpv, Windows policies and download queue.
+- tests/TD_Wallpaper.Tests: core/persistence/security regressions.
+- tests/TD_Wallpaper.UiTests: native UI/controller/transport/transition/ownership and portable smoke checks.
+- tests/TD_Wallpaper.VideoTests: GPU/codec diagnostics.
 - prepare-player.ps1 and prepare-download-tools.ps1: pinned tools and integrity checks.
 - build.ps1: build/core validation/self-contained publish.
-- installer/TD-WallpaperEngine.iss and package-release.ps1: distribution packaging.
+- installer/TD_Wallpaper.iss and package-release.ps1: distribution packaging.
 - .github/workflows/build.yml: code validation/artifacts, without personal or starter media.
 
 ## Lifecycle changes in 1.0.1
@@ -36,7 +36,7 @@ Tests cover actual file-handle release across mixed codecs, same-PID replacement
 
 ## Compatibility
 
-Public name: TD-WallpaperEngine. Internal EXE/assembly: TienDang.Wallpaper. Data: %LOCALAPPDATA%/TienDangWallpaper. Startup value: TienDangWallpaper. Schema: 1.
+Public name and app assembly: TD_Wallpaper. EXE: TD_Wallpaper.exe. Fresh data: %LOCALAPPDATA%/TD_Wallpaper; existing TienDangWallpaper folders are reused in place. Startup value: TD_Wallpaper; app-owned TienDangWallpaper entries are migrated on update. Schema: 1. Installer AppId and desktop/taskbar leases remain stable across versions. The library mutex retains its legacy name to prevent old and renamed apps writing the same library concurrently.
 
 Custom libraries never replace the personal startup entry. Only new libraries are seeded. Empty/backup-only libraries are preserved. Samples ship in distributions and are excluded from Git.
 
@@ -47,13 +47,13 @@ The serial download queue streams to disk and reuses import transactions. Extern
 After preparing tools and building with .NET SDK 10 on Windows:
 
 ```powershell
-dotnet tests/TienDang.Tests/bin/Release/net10.0/TienDang.Tests.dll
-dotnet tests/TienDang.UiTests/bin/Release/net10.0-windows/TienDang.UiTests.dll $PWD --desktop-lease
-dotnet tests/TienDang.UiTests/bin/Release/net10.0-windows/TienDang.UiTests.dll $PWD --controller
-dotnet tests/TienDang.UiTests/bin/Release/net10.0-windows/TienDang.UiTests.dll $PWD --phase4
-dotnet tests/TienDang.UiTests/bin/Release/net10.0-windows/TienDang.UiTests.dll $PWD "D:/Fixtures/short-h264.mp4" --transitions
-dotnet tests/TienDang.UiTests/bin/Release/net10.0-windows/TienDang.UiTests.dll $PWD --renderer-reuse "D:/Fixtures/hardware-fixtures.json"
-./tests/TienDang.UiTests/PortableSmoke.ps1 -ReleaseDirectory artifacts/release-1.0.2
+dotnet tests/TD_Wallpaper.Tests/bin/Release/net10.0/TD_Wallpaper.Tests.dll
+dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll $PWD --desktop-lease
+dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll $PWD --controller
+dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll $PWD --phase4
+dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll $PWD "D:/Fixtures/short-h264.mp4" --transitions
+dotnet tests/TD_Wallpaper.UiTests/bin/Release/net10.0-windows/TD_Wallpaper.UiTests.dll $PWD --renderer-reuse "D:/Fixtures/hardware-fixtures.json"
+./tests/TD_Wallpaper.UiTests/PortableSmoke.ps1 -ReleaseDirectory artifacts/release-1.0.2
 ```
 
 Phase4 needs all four starter files locally. Transition EOF checks need a valid MP4 shorter than 12 seconds. Use isolated data and owned native test windows.

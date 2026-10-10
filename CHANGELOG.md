@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.4 — 2026-10-10
+
+- Rename the solution, projects, namespaces, application assembly, EXE, installer, portable package and UI branding to TD_Wallpaper.
+- Update build scripts, CI, localization resources, tests and source documentation for the new paths.
+- Preserve existing libraries in place; fresh installations use %LOCALAPPDATA%/TD_Wallpaper.
+- Migrate app-owned legacy startup entries to the renamed EXE. Keep installer identity and shared desktop/taskbar/library ownership compatible with older versions.
+- Remove obsolete application binaries and shortcuts during installer upgrades without deleting wallpaper libraries.
+- Add isolated naming, data-directory and startup ownership regression checks.
+
+
 ## 1.0.3 — 2026-10-10
 
 - Loop pinned video wallpapers in mpv itself, including when EOF rotation is enabled. Interval rotation and single-item collections also use native looping, keeping the renderer alive instead of depending on EOF callbacks to restart playback.

@@ -1,4 +1,14 @@
-# Validation — 1.0.3
+# Validation — 1.0.4
+
+## 1.0.4 naming regression
+
+- Renamed solution/project/namespace/resource paths build and publish with zero warnings/errors; core tests pass 23/23 groups.
+- Naming checks pass: fresh TD_Wallpaper data folder, existing legacy library retained byte-for-byte, explicit --data-dir, old/new startup ownership, unrelated argument rejection, renamed assemblies and embedded English labels.
+- Controller, cross-process desktop lease, real MPV transitions and four native video loops/pause/resume/cleanup pass.
+- Taskbar preference/UI regression passes. Published TD_Wallpaper.exe passes all five isolated fresh/startup/existing/recovery cases; fresh manual data about 1,612 ms, startup about 3,267 ms under concurrent QA load.
+- The personal installed app/library was not upgraded or modified. Inno compilation and archive content/hash checks validate packaging; physical legacy installer/startup migration remains open.
+
+## Previous 1.0.3 validation
 
 Checked on Windows 11 25H2 x64 (build 26200), 2026-10-10, .NET SDK 10.0.300.
 

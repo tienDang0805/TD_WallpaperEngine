@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TD_Wallpaper.App/TD_Wallpaper.App.csproj" />
+    <Project Path="src/TD_Wallpaper.Core/TD_Wallpaper.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TD_Wallpaper.Tests/TD_Wallpaper.Tests.csproj" />
+    <Project Path="tests/TD_Wallpaper.UiTests/TD_Wallpaper.UiTests.csproj" />
+    <Project Path="tests/TD_Wallpaper.VideoTests/TD_Wallpaper.VideoTests.csproj" />
+  </Folder>
+</Solution>

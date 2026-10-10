@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-$playerDirectory = Join-Path $PSScriptRoot "src\TienDang.App\Player"
+$playerDirectory = Join-Path $PSScriptRoot "src\TD_Wallpaper.App\Player"
 $executable = Join-Path $playerDirectory "mpv.exe"
 $executableHash = "2924FF596AFD0352985B734B132F17F66564CC001E44D9E2E2CA7F5B5C16309B"
 if (Test-Path -LiteralPath $executable) {

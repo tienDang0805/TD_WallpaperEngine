@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>TD_Wallpaper</AssemblyName><ApplicationIcon>Assets/app.ico</ApplicationIcon><NoWarn>$(NoWarn);WFO0003</NoWarn><ApplicationManifest>app.manifest</ApplicationManifest><Version>1.0.4</Version><Product>TD_Wallpaper</Product><AssemblyTitle>TD_Wallpaper</AssemblyTitle><Description>Windows wallpaper library and video rotation</Description>
+  </PropertyGroup>
+  <ItemGroup><EmbeddedResource Include="Localization\*.json" /></ItemGroup><ItemGroup><InternalsVisibleTo Include="TD_Wallpaper.UiTests" /><InternalsVisibleTo Include="TD_Wallpaper.VideoTests" /></ItemGroup>
+  <ItemGroup><Resource Include="Assets/mascot-library.png" /><Resource Include="Assets/mascot-desk.png" /><Resource Include="Assets/mascot-empty.png" /><Resource Include="Assets/app.ico" /><Resource Include="Assets/brand.png" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../TD_Wallpaper.Core/TD_Wallpaper.Core.csproj" /></ItemGroup>
+  <ItemGroup><Content Include="Player\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><Content Include="DownloadTools\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><Content Include="TaskbarTools\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><Content Include="StarterPack\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup><Target Name="EnsureBundledPlayer" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Player\mpv.exe')" Text="Run prepare-player.ps1 before building the app." />
+  </Target>
+</Project>

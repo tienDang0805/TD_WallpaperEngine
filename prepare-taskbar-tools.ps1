@@ -2,7 +2,7 @@ $ErrorActionPreference='Stop'
 $taskVersion='2026.2'
 $taskSha='0DBE8E0255C20E131CDE536DCD0AE490D45989A7D360E26D0150DFF1922AC420'
 $taskCache=Join-Path $PSScriptRoot 'artifacts/taskbar-tools'
-$taskTarget=Join-Path $PSScriptRoot 'src/TienDang.App/TaskbarTools/TranslucentTB'
+$taskTarget=Join-Path $PSScriptRoot 'src/TD_Wallpaper.App/TaskbarTools/TranslucentTB'
 New-Item -ItemType Directory -Path $taskCache,$taskTarget -Force | Out-Null
 $taskZip=Join-Path $taskCache 'TranslucentTB-2026.2-x64.zip'
 if(!(Test-Path -LiteralPath $taskZip) -or (Get-FileHash -LiteralPath $taskZip).Hash -ne $taskSha) {

@@ -1,8 +1,8 @@
-TD-WallpaperEngine 1.0.2 — Windows x64, bộ cài và portable
+TD_Wallpaper 1.0.4 — Windows x64, bộ cài và portable
 
 1. Chạy Setup.exe, hoặc giải nén toàn bộ Portable.zip vào một thư mục cố định.
-2. Thoát phiên app cũ từ menu khay hệ thống rồi mở TienDang.Wallpaper.exe.
-   Tên EXE được giữ để tương thích; tên app hiển thị là TD-WallpaperEngine.
+2. Thoát phiên app cũ từ menu khay hệ thống rồi mở TD_Wallpaper.exe.
+   Bản 1.0.4 đổi tên EXE thành TD_Wallpaper.exe; thư viện cũ được giữ nguyên.
 3. Thêm wallpaper từ máy, kéo thả ảnh/video/WebM/thư mục hoặc chọn Thêm từ URL.
 4. Chọn mục để xem trước, bấm Đặt làm nền hoặc bật Tự đổi nền.
    Xáo trộn bắt đầu bằng mục đang chọn, rồi chạy các mục còn lại trước khi lặp.
@@ -38,7 +38,7 @@ HIỆU NĂNG
 - Chỉ --startup chờ 3 giây; mở thủ công không có delay chủ động.
 
 DỮ LIỆU / NÂNG CẤP
-- Dữ liệu: %LOCALAPPDATA%\TienDangWallpaper. Schema vẫn Version 1.
+- Dữ liệu: %LOCALAPPDATA%\TD_Wallpaper. Schema vẫn Version 1.
 - Chép file vào thư viện khi thêm giúp không phụ thuộc vị trí file gốc.
 - Nếu không chép: chuyển/xóa file gốc làm đường dẫn cũ mất hiệu lực;
   dùng Tìm lại trong thư mục, không cần tạo lại bộ hoặc yêu thích.

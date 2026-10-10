@@ -1,25 +1,25 @@
-param([string]$Version='1.0.3', [string]$Compiler, [switch]$Force)
+param([string]$Version='1.0.4', [string]$Compiler, [switch]$Force)
 $ErrorActionPreference='Stop'
 $taskRoot=$PSScriptRoot
 if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid version.'}
-$taskSourceVersion=([xml](Get-Content (Join-Path $taskRoot 'src/TienDang.App/TienDang.App.csproj') -Raw)).Project.PropertyGroup.Version
+$taskSourceVersion=([xml](Get-Content (Join-Path $taskRoot 'src/TD_Wallpaper.App/TD_Wallpaper.App.csproj') -Raw)).Project.PropertyGroup.Version
 if($taskSourceVersion -ne $Version){throw 'Source version mismatch; preserve historical releases.'}
 $taskRelease=Join-Path $taskRoot ('artifacts/release-'+$Version)
 $taskArtifacts=Join-Path $taskRoot 'artifacts'
-$taskExe=Join-Path $taskRelease 'TienDang.Wallpaper.exe'
-$taskArchive=Join-Path $taskArtifacts ("TD-WallpaperEngine-$Version-Portable.zip")
-$taskSetup=Join-Path $taskArtifacts ("TD-WallpaperEngine-$Version-Setup.exe")
+$taskExe=Join-Path $taskRelease 'TD_Wallpaper.exe'
+$taskArchive=Join-Path $taskArtifacts ("TD_Wallpaper-$Version-Portable.zip")
+$taskSetup=Join-Path $taskArtifacts ("TD_Wallpaper-$Version-Setup.exe")
 if(!(Test-Path -LiteralPath $taskExe) -or (Get-Item $taskExe).VersionInfo.ProductVersion -ne $Version){throw 'Publish a matching self-contained release first.'}
 if(!$Force -and ((Test-Path $taskArchive) -or (Test-Path $taskSetup))){throw 'Artifacts exist; use -Force for this version only.'}
 $taskDocuments=@('README.md','HUONG-DAN.txt','CHANGELOG.md','LICENSE','ASSET-LICENSES.md','VALIDATION.md')
 foreach($document in $taskDocuments){Copy-Item -LiteralPath (Join-Path $taskRoot $document) -Destination $taskRelease -Force}
 $taskDocsTarget=Join-Path $taskRelease 'docs'
 New-Item -ItemType Directory -Force $taskDocsTarget | Out-Null
-foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.3.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
+foreach($document in @('DEVELOPMENT.md','RELEASE-1.0.4.md')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/'+$document)) -Destination $taskDocsTarget -Force }
 $taskImagesTarget=Join-Path $taskDocsTarget 'images'
 New-Item -ItemType Directory -Force $taskImagesTarget | Out-Null
 foreach($image in @('library.png','settings.png')) { Copy-Item -LiteralPath (Join-Path $taskRoot ('docs/images/'+$image)) -Destination $taskImagesTarget -Force }
-$taskRequired=@('TienDang.Wallpaper.dll','TienDang.Core.dll','Player/mpv.exe','Player/THIRD-PARTY.txt','Player/LICENSE.GPL.txt','Player/LICENSE.LGPL.txt','DownloadTools/THIRD-PARTY.txt','DownloadTools/yt-dlp-LICENSE.txt','DownloadTools/Deno-LICENSE.txt','DownloadTools/FFmpeg-GPLv3.txt','StarterPack/galaxy-eye.mp4','StarterPack/water-fantasy.mp4','StarterPack/forest-valley.jpg','StarterPack/fortress-city.png','StarterPack/CREDITS.md','TaskbarTools/TranslucentTB/ExplorerHooks.dll','TaskbarTools/TranslucentTB/ExplorerTAP.dll','TaskbarTools/TranslucentTB/Xaml.dll','TaskbarTools/TranslucentTB/ProgramLog.dll','TaskbarTools/TranslucentTB/resources.pri','TaskbarTools/TranslucentTB/LICENSE.md','TaskbarTools/TranslucentTB/THIRD-PARTY.txt','TaskbarTools/TranslucentTB/FILE-HASHES.json')
+$taskRequired=@('TD_Wallpaper.dll','TD_Wallpaper.Core.dll','Player/mpv.exe','Player/THIRD-PARTY.txt','Player/LICENSE.GPL.txt','Player/LICENSE.LGPL.txt','DownloadTools/THIRD-PARTY.txt','DownloadTools/yt-dlp-LICENSE.txt','DownloadTools/Deno-LICENSE.txt','DownloadTools/FFmpeg-GPLv3.txt','StarterPack/galaxy-eye.mp4','StarterPack/water-fantasy.mp4','StarterPack/forest-valley.jpg','StarterPack/fortress-city.png','StarterPack/CREDITS.md','TaskbarTools/TranslucentTB/ExplorerHooks.dll','TaskbarTools/TranslucentTB/ExplorerTAP.dll','TaskbarTools/TranslucentTB/Xaml.dll','TaskbarTools/TranslucentTB/ProgramLog.dll','TaskbarTools/TranslucentTB/resources.pri','TaskbarTools/TranslucentTB/LICENSE.md','TaskbarTools/TranslucentTB/THIRD-PARTY.txt','TaskbarTools/TranslucentTB/FILE-HASHES.json')
 foreach($file in $taskRequired){if(!(Test-Path -LiteralPath (Join-Path $taskRelease $file))){throw ('Missing distribution file: '+$file)}}
 $taskPins=[ordered]@{
 'Player/mpv.exe'='2924FF596AFD0352985B734B132F17F66564CC001E44D9E2E2CA7F5B5C16309B'
@@ -35,7 +35,7 @@ $taskRecords=@($taskFiles | Sort-Object FullName | ForEach-Object {[ordered]@{Pa
 $taskUtf8=[Text.UTF8Encoding]::new($false)
 $taskCommit=& git -c safe.directory=$taskRoot rev-parse HEAD 2>$null
 if($LASTEXITCODE -ne 0){$taskCommit=$null}
-$taskManifest=[ordered]@{Product='TD-WallpaperEngine';Version=$Version;Platform='win-x64';SelfContained=$true;Commit=$taskCommit;CreatedUtc=[DateTime]::UtcNow.ToString('O');Tools=$taskPins;Files=$taskRecords}
+$taskManifest=[ordered]@{Product='TD_Wallpaper';Version=$Version;Platform='win-x64';SelfContained=$true;Commit=$taskCommit;CreatedUtc=[DateTime]::UtcNow.ToString('O');Tools=$taskPins;Files=$taskRecords}
 [IO.File]::WriteAllText((Join-Path $taskRelease 'RELEASE-MANIFEST.json'),($taskManifest | ConvertTo-Json -Depth 8),$taskUtf8)
 $taskFiles+=Get-Item (Join-Path $taskRelease 'RELEASE-MANIFEST.json')
 if(Test-Path $taskArchive){[IO.File]::Delete($taskArchive)}
@@ -54,10 +54,10 @@ if($hash -ne $record.SHA256){throw ('Archive checksum mismatch: '+$record.Path)}
 }finally{$taskVerify.Dispose()}
 if(!$Compiler){$Compiler=(Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source}
 if(!$Compiler -or !(Test-Path -LiteralPath $Compiler)){throw 'Supply an Inno Setup 6 ISCC.exe compiler with -Compiler.'}
-& $Compiler ('/DVersion='+$Version) ('/DReleaseDir='+$taskRelease) ('/DOutputDir='+$taskArtifacts) (Join-Path $taskRoot 'installer/TD-WallpaperEngine.iss')
+& $Compiler ('/DVersion='+$Version) ('/DReleaseDir='+$taskRelease) ('/DOutputDir='+$taskArtifacts) (Join-Path $taskRoot 'installer/TD_Wallpaper.iss')
 if($LASTEXITCODE -ne 0 -or !(Test-Path $taskSetup)){throw 'Installer compilation failed.'}
 $taskUploads=@($taskSetup,$taskArchive)
-foreach($demo in @('TD-WallpaperEngine-Demo.mp4','TD-WallpaperEngine-Demo.gif')){
+foreach($demo in @('TD_Wallpaper-Demo.mp4','TD_Wallpaper-Demo.gif')){
 $demoPath=Join-Path $taskArtifacts ('demo-'+$Version+'/'+$demo)
 if(Test-Path $demoPath){$taskUploads+=$demoPath}
 }
